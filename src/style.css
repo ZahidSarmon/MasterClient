@@ -1,0 +1,70 @@
+.input-sm{
+    height: calc(1.96rem + 2px);
+    font-size: 0.8em;
+}
+
+.table-section{
+    position: relative;
+}
+
+#table-loader{
+    background-color: rgb(113 109 109 / 30%);
+    color: #606971;
+}
+
+#table-loader-page{
+    background-color: rgb(113 109 109 / 30%);
+    color: #606971;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+.route-active{
+    background-color: #17a2b8;
+    color: #ffffff;
+    width: calc(274px - 0.5rem * 2);
+}
+
+.side-bar-full-width{
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.lang-flag {
+    height: 22px;
+    border-radius: 50%;
+}
+
+label:not(.form-check-label):not(.custom-file-label){
+    font-weight: 400;
+    font-family: 'Roboto';
+}
+
+.modal-header{
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.modal-title{
+    font-weight: 400;
+    font-family: 'Roboto';
+}
+
+.form-group {
+    margin-bottom: 0.3rem;
+}
+
+.modal-footer{
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+}
+
+.main-header{
+    z-index: 100 !important;
+}
+
+.layout-fixed .main-sidebar{
+    background-color: #0395eb !important;
+    background-image: linear-gradient(160deg, #51bfff 0%, #7cc1b9 100%) !important;
+}

@@ -1,12 +1,13 @@
 import { defineComponent } from 'vue';
-import { FieldType, GetPageInputResponse, GetPageResponse, Lookup, Page, PageInput,PageInputModel,PostResponse, Selective } from './Home.model';
+import { Page, PageInput} from './Home.model';
 import modal from '@/components/common/modalManage';
 import _ from 'lodash';
 import toasterService from '@/services/toasterService';
 import { useHomeStore } from '@/store/homeStore';
 import httpClient from '@/services/httpClient';
-import { DataType } from './Home.model';
 import { helperUtility } from '@/services/helperUtility';
+import moment from 'moment';
+import { DataType, FieldType, Lookup, PostResponse } from '../../common/Master.model';
 
 export default defineComponent({
     name: 'HomeComponent',
@@ -16,7 +17,6 @@ export default defineComponent({
     },
     mounted(){
         this.store.$patch({count:100});
-        this.loadPages();
     },
     data() {
         return{
@@ -25,15 +25,16 @@ export default defineComponent({
             form: {} as Page,
             pageInputs:[] as PageInput[],
             pageInput:{} as PageInput,
-            pageInputModels:[] as PageInputModel[],
-            pages:[] as Lookup<string>[]
 
         }
+    },
+    computed:{
     },
     methods:{
         addField(){
             this.close('inputModal');
             this.pageInput.id = helperUtility.getGUID();
+            this.pageInput.databaseName = this.pageInput.databaseName.replaceAll(" ","_");
             this.pageInputs.push(this.pageInput);
         },
         removeField(id:string){
@@ -41,31 +42,16 @@ export default defineComponent({
         },
         async createForm(){
             this.form.definition = JSON.stringify(this.pageInputs);
+            this.form.databaseName = this.form.databaseName.replaceAll(" ","_");
             const payload = {
                 ...this.form
             }
+
+           console.log("payload: ",payload);
             const response = await httpClient.post<PostResponse>(`Page`,payload);
             if(response){
                 this.pageInputs=[];
                 toasterService.success('Form Created Successfully');
-            }
-        },
-        async loadPageInputs(id:string){
-            const response = await httpClient.get<GetPageInputResponse>(`Page/GetPageInputsByPage?id=${id}`);
-            if(response && response.result){
-                this.pageInputModels = response.result;
-            }
-        },
-        async loadPages(){
-            const response = await httpClient.get<GetPageResponse>(`Page`);
-            if(response && response.result){
-                this.pages = response.result;
-            }
-        },
-        pageChange(event:any){
-            if(event){
-                const id = event.target.value;
-                this.loadPageInputs(id);
             }
         },
         fieldTypeChange(fieldType:string){

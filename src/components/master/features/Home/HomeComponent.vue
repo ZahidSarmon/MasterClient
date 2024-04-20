@@ -47,25 +47,28 @@
             </div>
         </div>
         <div class="card card-body m-2 form-responsive">
-            <div class="form-group row">
-                <label for="formName" class="col-sm-2 col-form-label">{{ 'Display Name' }}:</label>
-                <div class="col-sm-10">
-                    <input v-model="form.name" id="formName" placeholder="Page Name"  class="form-control input-sm ml-2" />
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="form-group row">
+                        <label for="formName" class="col-sm-3 col-form-label">{{ 'Display Name' }}:</label>
+                        <div class="col-sm-9">
+                            <input v-model="form.name" id="formName" placeholder="Page Name"  class="form-control input-sm ml-2" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label for="databaseName" class="col-sm-2 col-form-label">{{ 'Database Name' }}:</label>
-                <div class="col-sm-10">
-                    <input v-model="form.databaseName" id="databaseName" placeholder="Database Name"  class="form-control input-sm ml-2" />
+                <div class="col-md-5">
+                    <div class="form-group row">
+                        <label for="databaseName" class="col-sm-3 col-form-label">{{ 'Database Name' }}:</label>
+                        <div class="col-sm-9">
+                            <input v-model="form.databaseName" id="databaseName" placeholder="Database Name"  class="form-control input-sm ml-2" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label for="createFormId" class="col-sm-2 col-form-label">{{ '' }}</label>
-                <div class="col-sm-2">
+                <div class="col-md-2">
                     <button class="btn btn-sm btn-primary ml-2" @click="createForm">Create Form <i class="fas fa-plus-circle"></i></button>
                 </div>
             </div>
-            <div class="row mt-2 template-input">
+            <div class="row mt-2">
                 <template v-for="(item,index) in pageInputs" :key="index">
                     <div class="col-md-11">
                         <div class="form-group input-field">
@@ -73,32 +76,12 @@
                             <input :type="item.fieldType" :name="item.title" :id="item.id" :placeholder="item.placeHolder" class="form-control input-sm" />
                         </div>
                     </div>
-                    <div class="col-md-1 delete-pane" style="padding-top:2.3em">
+                    <div class="col-md-1" style="padding-top:2.3em">
                         <div :id="'delete'+index" class="delete-item" @click="removeField(item.id)">
                             <i class="fas fa-trash-alt"></i>
                         </div>
                     </div>
                 </template>
-            </div>
-            <div class="form-group row">
-                <label for="pageSelect" class="col-md-1 col-form-label">{{ 'Page' }}:</label>
-                <div class="col-md-4">
-                    <select class="form-control input-sm" @change="pageChange($event)">
-                        <option value="0">{{ 'Select Page' }}</option>
-                        <option v-for="(item,index) in pages" :key="index"  :value="item.id">{{ item.name }}</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mt-2 template-input">
-                <template v-for="(item,index) in pageInputModels" :key="index">
-                    <div class="col-md-12">
-                        <div class="form-group input-field">
-                            <label :for="item.id">{{ item.title }}</label>
-                            <input :type="item.fieldType" :name="item.title" :id="item.id" :placeholder="item.placeHolder" class="form-control input-sm" />
-                        </div>
-                    </div>
-                </template>
-                
             </div>
         </div>
     </div>
@@ -202,10 +185,7 @@
 
     .delete-item{
         cursor: pointer;
-        display: none;
-    }
-
-    .delete-pane:hover > .delete-item{
+        color:rgb(102, 12, 12);
         display: block;
     }
 

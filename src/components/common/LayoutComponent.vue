@@ -24,7 +24,15 @@
                   </router-link>
                 </a>
               </li>
-              <template v-for="(page, idx) in data" :key="idx">
+              <li class="nav-item">
+                <a class="nav-link" :class="$route.path == '/page-manage' ? 'active' : ''">
+                  <router-link to="/page-manage">
+                    <i class="fas fa-file-alt"></i>
+                    <p class="page-item">{{ 'Page Manage' }}</p>
+                  </router-link>
+                </a>
+              </li>
+              <!-- <template v-for="(page, idx) in data" :key="idx">
                 <li class="nav-item" v-if="page.childs && page.childs.length == 0">
                   <a class="nav-link" :class="$route.path == page.pageUrl ? 'active' : ''">
                     <router-link :to="page.pageUrl">
@@ -53,7 +61,7 @@
                     </li>
                   </ul>
                 </li>
-              </template>
+              </template> -->
             </ul>
           </li>
         </ul>

@@ -1,9 +1,6 @@
 import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
-import HomeComponent from "@/components/master/features/Home/HomeComponent.vue";
-import LoginComponent from "./components/master/features/Login/LoginComponent.vue";
 import _ from "lodash";
 import { authGuard } from "./services/authGuard";
-import NotFoundComponent from "./components/master/features/NotFound/NotFoundComponent.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -17,19 +14,25 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/not-found",
     name: "Not Found",
-    component: NotFoundComponent,
+    component: () => import("./components/master/features/NotFound/NotFoundComponent.vue"),
   },
   {
     path: "/home",
     name: "Home",
-    component: HomeComponent,
+    component: () => import("./components/master/features/Home/HomeComponent.vue"),
     meta: { requiresAuth: false },
   },
   {
     path: "/login",
     name: "Login",
-    component: LoginComponent,
+    component: () => import("./components/master/features/Login/LoginComponent.vue"),
   },
+  {
+    path:"/page-manage",
+    name:"Page Manage",
+    component:()=>import("./components/master/features/PageManage/PageManageComponent.vue"),
+    meta: { requiresAuth: true },
+  }
 ];
 
 const router = createRouter({

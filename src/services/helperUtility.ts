@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const helperUtility = {
     getGUID(){
         let d = new Date().getTime();
@@ -11,5 +13,8 @@ export const helperUtility = {
         });
         
         return newGuid;
+    },
+    getCurrentDateTime(){
+        return moment().format('YYYY-MM-DD HH:mm:ss');
     }
 }

@@ -17,9 +17,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("./components/master/features/NotFound/NotFoundComponent.vue"),
   },
   {
-    path: "/home",
-    name: "Home",
-    component: () => import("./components/master/features/Home/HomeComponent.vue"),
+    path: "/page-build",
+    name: "Page Build",
+    component: () => import("./components/master/features/PageBuild/PageBuildComponent.vue"),
     meta: { requiresAuth: false },
   },
   {

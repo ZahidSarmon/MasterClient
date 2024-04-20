@@ -5,18 +5,29 @@ import httpClient from '@/services/httpClient';
 import {PageInputModel, PageModel} from './PageManageModel';
 import { DeleteResponse, Lookup } from '../../common/Master.model';
 import { PageManageDataService } from './PageManageDataService';
+import { DialogUtility } from '@syncfusion/ej2-vue-popups';
+import { DropDownListComponent } from "@syncfusion/ej2-vue-dropdowns";
+
+let Confirmation: any = undefined;
 
 export default defineComponent({
-    name: 'HomeComponent',
+    name: 'PageManageComponent',
+    components:{
+        'ejs-dropdownlist' : DropDownListComponent,
+    },
     data() {
         return{
             dataService:{} as PageManageDataService,
             pageInputs:[] as PageInputModel[],
-            pages:[] as Lookup<string>[],
             pageModel:{} as PageModel,
             pageInputValue:{
                 columns:[] as string[],
                 data:[] as any[]
+            },
+            page:{
+                value:"",
+                data:[] as Lookup<string>[],
+                fields: { text: 'name', value: 'id' },
             },
             user:"admin@mail.com",
             isUpdate:false
@@ -38,7 +49,7 @@ export default defineComponent({
         async loadPages(){
             const response = await this.dataService.GetPages();
             if(response && response.result){
-                this.pages = response.result;
+                this.page.data = response.result;
             }
         },
         async loadPageInputValue(id:string){
@@ -78,14 +89,31 @@ export default defineComponent({
             this.loadPageInputValue(this.pageModel.id);
         },  
         async deletePageInputValues(id:string,tableName:string){
-            const payload = {
-                tableName:tableName,
-                id:id
-            }
-            const response = await httpClient.delete<DeleteResponse>(`Page/DeletePageInputValues`,payload);
-            if(response && response.result){
-                toasterService.success('Data Deleted Successfully');
-            }
+            const app = this;
+            Confirmation = DialogUtility.confirm({
+                title: this.$t("Delete Confirmation"),
+                content: this.$t("Are you sure you want to delete this record?"),
+                okButton: {
+                  text: this.$t("ok"),
+                  click: async function () {
+                    Confirmation.hide();
+                    const payload = {
+                        tableName:tableName,
+                        id:id
+                    }
+                    const response = await httpClient.delete<DeleteResponse>(`Page/DeletePageInputValues`,payload);
+                    if(response && response.result){
+                        app.loadPageInputValue(app.pageModel.id);
+                        toasterService.success('Data Deleted Successfully');
+                    }
+                  },
+                },
+                cancelButton: { text: this.$t("cancel") },
+                showCloseIcon: true,
+                closeOnEscape: true,
+                zIndex: 10000,
+                animationSettings: { effect: "Zoom" },
+              });
         },
         editPageInput(item:any){
             const keyValueList = Object.entries(item);
@@ -104,13 +132,9 @@ export default defineComponent({
             const id = Object.values(item).shift();
             this.deletePageInputValues(String(id),this.pageModel.databaseName);
         },
-        pageChange(event:any){
-            if(event){
-                const id = event.target.value;
-                this.pageModel = this.pages.find(item => item.id == id) as PageModel;
-                this.loadPageInputs(id);
-                this.loadPageInputValue(id);
-            }
+        pageChange(){
+            this.loadPageInputs(this.page.value);
+            this.loadPageInputValue(this.page.value);
         },
         getColumns(columnString:string){
             if(!columnString) return [] as string[];

@@ -14,7 +14,16 @@ export const helperUtility = {
         
         return newGuid;
     },
+    getDateTimeFormat(){
+        return 'YYYY-MM-DD HH:mm:ss';
+    },
+    getDateFormat(){
+        return "yyyy-MM-dd";
+    },
     getCurrentDateTime(){
         return moment().format('YYYY-MM-DD HH:mm:ss');
+    },
+    getCurrentDate(){
+        return moment().format("YYYY-MM-DD");
     }
 }

@@ -36,17 +36,18 @@ export default defineComponent({
 </script>
 
 <style>
-@import "../node_modules/@syncfusion/ej2-base/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-calendars/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-dropdowns/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-inputs/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-navigations/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-popups/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-vue-grids/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-vue-dropdowns/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-vue-buttons/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-vue-navigations/styles/material.css";
-@import "../node_modules/@syncfusion/ej2-vue-notifications/styles/material.css";
+@import "../node_modules/@syncfusion/ej2-base/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-buttons/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-calendars/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-dropdowns/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-inputs/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-navigations/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-popups/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-splitbuttons/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-vue-grids/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-vue-dropdowns/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-vue-buttons/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-vue-navigations/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-vue-notifications/styles/bootstrap5.css";
+@import "../node_modules/@syncfusion/ej2-vue-calendars/styles/bootstrap5.css";
 </style>

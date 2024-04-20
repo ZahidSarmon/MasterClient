@@ -2,12 +2,15 @@
     <div class="container-fluid mt-2">
         <div class="card card-body">
             <div class="form-group row">
-                <label for="pageSelect" class="col-md-1 col-form-label">{{ 'Page' }}:</label>
-                <div class="col-md-4">
-                    <select class="form-control input-sm" @change="pageChange($event)">
-                        <option value="0">{{ 'Select Page' }}</option>
-                        <option v-for="(item,index) in pages" :key="index"  :value="item.id">{{ item.name }}</option>
-                    </select>
+                <label for="pageSelect" class="col-sm-1 col-form-label">{{ 'Page' }}:</label>
+                <div class="col-sm-4">
+                    <ejs-dropdownlist id='dropdownlist_page'  
+                        placeholder='Select a page' 
+                        :dataSource='page.data' 
+                        v-model="page.value"
+                        @change="pageChange"
+                        :fields='page.fields'>
+                    </ejs-dropdownlist>
                 </div>
             </div>
             <div class="row mt-2">
@@ -15,7 +18,7 @@
                     <div class="col-md-12">
                         <div class="form-group input-field">
                             <label :for="item.id">{{ item.title }}</label>
-                            <input :type="item.fieldType" :name="item.title" :id="item.id" v-model="item.value" :placeholder="item.placeHolder" class="form-control input-sm" />
+                            <input :type="item.fieldType" :name="item.title" :id="item.id" v-model="item.value" :placeholder="item.placeHolder" class="e-input" />
                         </div>
                     </div>
                 </template>

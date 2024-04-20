@@ -6,7 +6,7 @@ export interface PageInput{
     databaseName:string;
     fieldType: string;
     dataType:string;
-    varcharSize:string;
+    size:string;
     decimalPlace:number;
     placeHolder:string;
     comboInput:ComboInput;
@@ -15,6 +15,7 @@ export interface PageInput{
     defaultDate:string;
     isRequired:boolean;
     ordinal:number;
+    isMax:boolean;
 }
 
 export interface Page{
@@ -43,3 +44,4 @@ export interface ComboInputTableRef{
     nameColumn:string;
     whereClause:string;
 }
+

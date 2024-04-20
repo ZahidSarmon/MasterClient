@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@syncfusion/ej2-vue-buttons": "23.1.36",
+    "@syncfusion/ej2-vue-calendars": "^25.1.40",
     "@syncfusion/ej2-vue-dropdowns": "23.1.36",
     "@syncfusion/ej2-vue-grids": "23.1.36",
     "@syncfusion/ej2-vue-navigations": "23.1.36",
     "@syncfusion/ej2-vue-notifications": "23.1.36",
+    "@syncfusion/ej2-vue-popups": "^25.1.39",
     "@syncfusion/ej2-vue-schedule": "23.1.36",
     "add": "^2.0.6",
     "axios": "^1.4.0",

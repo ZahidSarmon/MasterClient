@@ -17,10 +17,10 @@
           <li class="nav-item menu-open">
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a class="nav-link" :class="$route.path == '/home' ? 'active' : ''">
-                  <router-link to="/home">
-                    <i class="fas fa-home"></i>
-                    <p class="page-item">{{ $t(buildKey('Home')) }}</p>
+                <a class="nav-link" :class="$route.path == '/page-build' ? 'active' : ''">
+                  <router-link to="/page-build">
+                    <i class="fas fa-cog"></i>
+                    <p class="page-item">{{ 'Page Build' }}</p>
                   </router-link>
                 </a>
               </li>

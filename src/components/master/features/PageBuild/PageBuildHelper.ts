@@ -1,9 +1,13 @@
 import _ from "lodash";
-import { DataType } from "../../common/Master.model";
+import { DataType, FieldType } from "../../common/Master.model";
 import { PageInput } from "./PageBuild.model";
 
 export const pageBuildHelper = {
     getInValidStatus(pageInput:PageInput){
+        const isDropdown = (pageInput.fieldType == FieldType.DropDown 
+            || pageInput.fieldType == FieldType.AutoComplete 
+            || pageInput.fieldType == FieldType.MultiSelect);
+
         if(_.isEmpty(pageInput.title)){
             return "Title is required";
         }
@@ -65,9 +69,38 @@ export const pageBuildHelper = {
                 return "Database Name must be alphanumeric and start with alphabet";
             }
         }
+
+        if(pageInput.comboInput.isDataBaseSource && isDropdown){
+            if(_.isEmpty(pageInput.comboInput.tableRef.tableSchema)){
+                return "Table Schema is required";
+            }
+            if(_.isEmpty(pageInput.comboInput.tableRef.tableName)){
+                return "Table Name is required";
+            }
+            if(_.isEmpty(pageInput.comboInput.tableRef.idColumn)){
+                return "Id Column is required";
+            }
+            if(_.isEmpty(pageInput.comboInput.tableRef.nameColumn)){
+                return "Name Column is required";
+            }
+
+            if(pageInput.comboInput.tableRef.idColumn == pageInput.comboInput.tableRef.nameColumn){
+                return "Id Column and Name Column must be different";
+            }
+        }
+
+        if(!pageInput.comboInput.isDataBaseSource && isDropdown){
+            if(pageInput.comboInput.data && pageInput.comboInput.data.length == 0){
+                return "Dropdown data are required";
+            }
+        }
     },
 
     isValidForm(pageInput:PageInput){
+        const isDropdown = (pageInput.fieldType == FieldType.DropDown 
+            || pageInput.fieldType == FieldType.AutoComplete 
+            || pageInput.fieldType == FieldType.MultiSelect);
+
         if(_.isEmpty(pageInput.title)){
             return false;
         }
@@ -126,6 +159,30 @@ export const pageBuildHelper = {
         }else{
             const regex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
             if(!regex.test(pageInput.databaseName)){
+                return false;
+            }
+        }
+
+        if(pageInput.comboInput.isDataBaseSource && isDropdown){
+            if(_.isEmpty(pageInput.comboInput.tableRef.tableSchema)){
+                return false;
+            }
+            if(_.isEmpty(pageInput.comboInput.tableRef.tableName)){
+                return false;
+            }
+            if(_.isEmpty(pageInput.comboInput.tableRef.idColumn)){
+                return false;
+            }
+            if(_.isEmpty(pageInput.comboInput.tableRef.nameColumn)){
+                return false;
+            }
+            if(pageInput.comboInput.tableRef.idColumn == pageInput.comboInput.tableRef.nameColumn){
+                return false;
+            }
+        }
+
+        if(!pageInput.comboInput.isDataBaseSource && isDropdown){
+            if(pageInput.comboInput.data && pageInput.comboInput.data.length == 0){
                 return false;
             }
         }

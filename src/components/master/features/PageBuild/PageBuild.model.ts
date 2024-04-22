@@ -16,6 +16,8 @@ export interface PageInput{
     isRequired:boolean;
     ordinal:number;
     isMax:boolean;
+    isUpdate:boolean;
+    value:string;
 }
 
 export interface Page{
@@ -33,15 +35,33 @@ export interface PageModel{
 }
 
 export interface ComboInput{
-    isDbSource:string;
-    fixedValues:Lookup<string>[],
+    isDataBaseSource:boolean;
+    data:Lookup<string>[],
     tableRef:ComboInputTableRef;
 }
 
 export interface ComboInputTableRef{
+    tableSchema:string;
     tableName:string;
     idColumn:string;
     nameColumn:string;
     whereClause:string;
 }
 
+export interface GetTableSchemaResponse{
+    result:Lookup<string>[];
+    errorMessage: any;
+    timeGenerated: string;
+}
+
+export interface GetTableNameResponse{
+    result:Lookup<string>[];
+    errorMessage: any;
+    timeGenerated: string;
+}
+
+export interface GetTableColumnResponse{
+    result:Lookup<string>[];
+    errorMessage: any;
+    timeGenerated: string;
+}

@@ -1,16 +1,9 @@
+import { PageInput } from "../PageBuild/PageBuild.model";
+
 export interface PageModel{
     id:string;
     name:string;
     databaseName:string;
-}
-
-export interface PageInputModel{
-    id:string;
-    title: string;
-    databaseName:string;
-    fieldType: string;
-    placeHolder:string;
-    value:string;
 }
 
 export interface PageInputValueModel{
@@ -25,7 +18,7 @@ export interface GetPageInputValueResponse{
 }
 
 export interface GetPageInputResponse{
-    result:PageInputModel[];
+    result:PageInput[];
     errorMessage: any;
     timeGenerated: string;
 }

@@ -27,6 +27,12 @@ export interface PutResponse{
     timeGenerated: string;
 }
 
+export interface DeleteResponse{
+    result:boolean;
+    errorMessage: any;
+    timeGenerated: string;
+}
+
 export enum FieldType{
     Text = "text",
     DropDown = "dropdown",

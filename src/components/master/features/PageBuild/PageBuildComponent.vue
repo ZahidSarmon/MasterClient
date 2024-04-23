@@ -14,28 +14,28 @@
         <div class="card card-body m-2 form-responsive">
             <div class="row">
                 <div class="col-md-5">
-                    <div class="form-group row">
-                        <label for="formName" class="col-sm-2 col-form-label">{{ 'Display Name' }}:</label>
-                        <div class="col-sm-9">
-                            <input v-model="form.name" id="formName" placeholder="Page Name"  class="e-input ml-2" />
+                    <div class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">{{ 'Display Name' }}</span>
                         </div>
+                        <input type="text" v-model="form.name" class="form-control" aria-label="DisplayName" aria-describedby="inputGroup-sizing-sm">
                     </div>
                 </div>
                 <div class="col-md-5">
-                    <div class="form-group row">
-                        <label for="databaseName" class="col-sm-2 col-form-label">{{ 'Database Name' }}:</label>
-                        <div class="col-sm-9">
-                            <input v-model="form.databaseName" id="databaseName" placeholder="Database Name"  class="e-input ml-2" />
+                    <div class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">{{ 'Database Table Name' }}</span>
                         </div>
+                        <input type="text" v-model="form.databaseName" class="form-control" aria-label="DatabaseTableName" aria-describedby="inputGroup-sizing-sm">
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-sm btn-primary ml-2" @click="createForm">Create Form <i class="fas fa-plus-circle"></i></button>
+                    <button class="btn btn-sm btn-primary ml-2" @click="upsertPageInput">Build Form <i class="fas fa-plus-circle"></i></button>
                 </div>
             </div>
             <div class="row mt-2">
-                <template v-for="(item,index) in pageInputs" :key="index">
-                    <div class="col-md-10">
+                <!-- <template v-for="(item,index) in pageInputs" :key="index">
+                    <div class="col-md-10 p-0">
                         <div class="form-group input-field">
                             <label :for="item.id">{{ item.title }}</label>
                             <input :type="item.fieldType" :name="item.title" :id="item.id" :placeholder="item.placeHolder" class="e-input" />
@@ -51,7 +51,73 @@
                             </a>
                         </div>
                     </div>
-                </template>
+                </template> -->
+                <div class="table-responsive" v-if="pageInputs && pageInputs.length>0">
+                    <table class="table table-striped">
+                        <thead>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item,index) in pageInputs" :key="index">
+                                <td>{{ item.title }}</td>
+                                <td>
+                                    <div class="form-group input-field" v-if="helperUtility.isTextBox(item.fieldType)">
+                                        <input :type="item.fieldType" :name="item.title" :id="item.id" v-model="item.value" :placeholder="item.placeHolder" class="e-input" />
+                                    </div>
+                                    <div class="form-group input-field" v-if="helperUtility.isDate(item.fieldType)">
+                                        <ejs-datepicker v-model="item.value" :value="getCurrentDate" :format="getDateFormat"></ejs-datepicker>
+                                    </div>
+                                    <div class="form-group input-field" v-if="helperUtility.isCheckBox(item.fieldType)">
+                                        <ejs-checkbox  :id="item.id" v-model="item.value" :label='item.title'>{{ item.title }}</ejs-checkbox>
+                                    </div>
+                                    <div class="form-group input-field" v-if="helperUtility.isDropDown(item.fieldType)">
+                                        <ejs-dropdownlist :id="'dropdown_'+item.id" v-model="item.value" 
+                                            :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboInputManage.static.fields'>
+                                        </ejs-dropdownlist>
+                                    </div>
+                                    <div class="form-group input-field" v-if="helperUtility.isMultiSelect(item.fieldType)">
+                                        <ejs-multiselect :id="'multiselect_'+item.id" v-model="item.value" 
+                                            :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboInputManage.static.fields'>
+                                        </ejs-multiselect>
+                                    </div>
+                                    <div class="form-group input-field" v-if="helperUtility.isAutoComplete(item.fieldType)">
+                                        <ejs-autocomplete :id="'autocomplete_'+item.id" v-model="item.value" 
+                                            :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboInputManage.static.fields'>
+                                        </ejs-autocomplete>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="#" @click="editField(item.id)"><i class="fas fa-edit mr-2"></i></a>
+                                    <a href="#" @click="removeField(item.id)"><i class="fas fa-trash-alt"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <ejs-grid ref="gridPage" 
+                    :dataSource="pageTable.data" 
+                    :toolbar='pageTable.toolbar' 
+                    :allowPaging="true" :allowResizing='true'
+                    :pageSettings='pageTable.pageSettings' 
+                    :locale='pageTable.locale' 
+                    :rowHeight='25'
+                    :allowSorting='true' 
+                    :autoFit="true"
+                    :editSettings='pageTable.editSettings'
+                    :toolbarClick='toolbarClick'
+                    :searchSettings='pageTable.searchOptions'
+                    :dataStateChange='dataStateChange'
+                    :commandClick='commandClick'>
+                    <e-columns>
+                        <e-column :headerText="$t('databaseTableName')" field='DatabaseName'></e-column>
+                        <e-column :headerText="$t('displayName')" field='Name'></e-column>
+                        <e-column :headerText="$t('definition')" field='Definition'></e-column>
+                        <e-column :headerText="$t('actions')" textAlign="Center"
+                            :commands='pageTable.commands'
+                            ></e-column>
+                    </e-columns>
+                </ejs-grid>
             </div>
         </div>
     </div>
@@ -72,13 +138,13 @@
                                 <ejs-dropdownlist id='dropdownlist_fieldType' v-model="pageInput.fieldType" placeholder='Select a field type' :dataSource='fieldType.data' :fields='fieldType.fields'></ejs-dropdownlist>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" v-if="pageInput.fieldType != fieldType.model.MultiSelect">
                             <label for="databaseType_name" class="col-sm-2 col-form-label">{{ 'Database Type' }}</label>
                             <div class="col-sm-9">
                                 <ejs-dropdownlist id='dropdownlist_databaseType' v-model="pageInput.dataType" placeholder='Select a database type' :dataSource='dataType.data' :fields='dataType.fields'></ejs-dropdownlist>
                             </div>
                         </div>
-                        <div class="form-group row" v-if="hasSize()">
+                        <div class="form-group row" v-if="hasSize() && pageInput.fieldType != fieldType.model.MultiSelect">
                             <label for="size" class="col-sm-2 col-form-label">{{ 'Size' }}</label>
                             <div :class="hasMax()?'col-sm-7':'col-sm-9'">
                                 <input type="text" class="e-input" id="size" v-model="pageInput.size" :disabled="pageInput.isMax">
@@ -162,14 +228,14 @@
                                 <ejs-checkbox  id="form_checkbox" v-model="pageInput.isRequired" label='Is Required'>Is Required</ejs-checkbox>
                             </div>
                         </div>
-                        <div class="form-group row">
+                        <div class="form-group row" v-if="pageInput.fieldType != fieldType.model.MultiSelect">
                             <label for="form_databaseName" class="col-sm-2 col-form-label">{{ 'Database Name' }}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="e-input" id="form_databaseName" v-model="pageInput.databaseName">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="form_title" class="col-sm-2 col-form-label">{{ 'Label' }}</label>
+                            <label for="form_title" class="col-sm-2 col-form-label">{{ 'Title' }}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="e-input" id="form_title" v-model="pageInput.title">
                             </div>
@@ -197,7 +263,7 @@
     </div>
 </template>
 <script lang="ts" src="./PageBuildService"></script>
-<style scoped>
+<style>
     
     .row{
         margin: 0;
@@ -227,5 +293,19 @@
     .form-responsive{
         height: calc(100vh - 200px);
         overflow-y: auto;
+    }
+
+    .table-responsive{
+        height: calc(100vh - 700px);
+        overflow-y: auto;
+    }
+
+    .e-grid .e-gridcontent{
+        overflow-y: auto;
+        height: calc(100vh - 690px) !important;
+    }
+
+    .table td{
+        padding: 0;
     }
 </style>

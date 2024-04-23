@@ -197,9 +197,5 @@ export default defineComponent({
   }
 }
 
-.e-grid .e-content {
-  background-color: #fff;
-  height: calc(100vh - 390px) !important
-}
 </style>
 

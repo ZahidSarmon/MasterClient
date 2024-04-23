@@ -1,9 +1,32 @@
+import { Lookup } from "../../common/Master.model";
 import { PageInput } from "../PageBuild/PageBuild.model";
 
 export interface PageModel{
     id:string;
     name:string;
     databaseName:string;
+}
+
+export interface ComboInput{
+    data:Lookup<string>[];
+    tableName:string;
+    tableSchema:string;
+}
+
+export interface PutPageInputValueModel{
+    tableName:string;
+    columns:string[];
+    columnWithValues:Map<string,string>;
+    modifiedBy:string;
+    comboInputs:ComboInput[];
+}
+
+export interface PostPageInputValueModel{
+    tableName:string;
+    columns:string[];
+    columnWithValues:Map<string,string>;
+    createdBy:string;
+    comboInputs:ComboInput[];
 }
 
 export interface PageInputValueModel{
@@ -23,7 +46,7 @@ export interface GetPageInputResponse{
     timeGenerated: string;
 }
 
-export interface GetPageResponse{
+export interface GetPageLookupResponse{
     result:PageModel[];
     errorMessage: any;
     timeGenerated: string;

@@ -16,30 +16,33 @@
             <div class="row mt-2">
                 <template v-for="(item,index) in pageInputs" :key="index">
                     <div class="col-md-12">
-                        <div class="form-group input-field" v-if="isTextBox(item.fieldType)">
+                        <div class="form-group input-field" v-if="helperUtility.isTextBox(item.fieldType)">
                             <label :for="item.id">{{ item.title }}</label>
                             <input :type="item.fieldType" :name="item.title" :id="item.id" v-model="item.value" :placeholder="item.placeHolder" class="e-input" />
                         </div>
-                        <div class="form-group input-field" v-if="isDate(item.fieldType)">
+                        <div class="form-group input-field" v-if="helperUtility.isDate(item.fieldType)">
                             <label :for="item.id">{{ item.title }}</label>
-                            <ejs-datepicker v-model="pageInput.defaultDate" :value="getCurrentDate" :format="getDateFormat"></ejs-datepicker>
+                            <ejs-datepicker v-model="item.value" :value="getCurrentDate" :format="getDateFormat"></ejs-datepicker>
                         </div>
-                        <div class="form-group input-field" v-if="isDropDown(item.fieldType)">
+                        <div class="form-group input-field" v-if="helperUtility.isCheckBox(item.fieldType)">
+                            <ejs-checkbox  :id="item.id" v-model="item.value" :label='item.title'>{{ item.title }}</ejs-checkbox>
+                        </div>
+                        <div class="form-group input-field" v-if="helperUtility.isDropDown(item.fieldType)">
                             <label :for="item.id">{{ item.title }}</label>
                             <ejs-dropdownlist :id="'dropdown_'+item.id" v-model="item.value" 
-                                :placeholder='item.placeHolder' :dataSource='item.comboData' :fields='comboData.fields'>
+                                :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
                             </ejs-dropdownlist>
                         </div>
-                        <div class="form-group input-field" v-if="isMultiSelect(item.fieldType)">
+                        <div class="form-group input-field" v-if="helperUtility.isMultiSelect(item.fieldType)">
                             <label :for="item.id">{{ item.title }}</label>
                             <ejs-multiselect :id="'multiselect_'+item.id" v-model="item.value" 
-                                :placeholder='item.placeHolder' :dataSource='item.comboData' :fields='comboData.fields'>
+                                :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
                             </ejs-multiselect>
                         </div>
-                        <div class="form-group input-field" v-if="isAutoComplete(item.fieldType)">
+                        <div class="form-group input-field" v-if="helperUtility.isAutoComplete(item.fieldType)">
                             <label :for="item.id">{{ item.title }}</label>
                             <ejs-autocomplete :id="'autocomplete_'+item.id" v-model="item.value" 
-                                :placeholder='item.placeHolder' :dataSource='item.comboData' :fields='comboData.fields'>
+                                :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
                             </ejs-autocomplete>
                         </div>
                     </div>

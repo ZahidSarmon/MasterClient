@@ -1,3 +1,4 @@
+import { FieldType } from "@/components/master/common/Master.model";
 import moment from "moment";
 
 export const helperUtility = {
@@ -25,5 +26,27 @@ export const helperUtility = {
     },
     getCurrentDate(){
         return moment().format("YYYY-MM-DD");
+    },
+    isTextBox(fieldType:string){
+        return fieldType == FieldType.Text 
+        || fieldType == FieldType.Number
+    },
+    isDate(fieldType:string){
+        return fieldType == FieldType.Date;
+    },
+    isDropDown(fieldType:string){
+        return fieldType == FieldType.DropDown;
+    },
+    isMultiSelect(fieldType:string){
+        return fieldType == FieldType.MultiSelect;
+    },
+    isCheckBox(fieldType:string){
+        return fieldType == FieldType.CheckBox;
+    },
+    isRadioButton(fieldType:string){
+        return fieldType == FieldType.Radio;
+    },
+    isAutoComplete(fieldType:string){
+        return fieldType == FieldType.AutoComplete;
     }
 }

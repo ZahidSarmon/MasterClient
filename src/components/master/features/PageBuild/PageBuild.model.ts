@@ -20,18 +20,13 @@ export interface PageInput{
     value:string;
 }
 
-export interface Page{
+export interface PageModel{
     id: string;
     name: string;
     databaseName:string;
     definition:string;
-    isActive:boolean
-}
-
-export interface PageModel{
-    id:string;
-    name:string;
-    databaseName:string;
+    isActive:boolean;
+    isUpdate:false;
 }
 
 export interface ComboInput{
@@ -64,4 +59,15 @@ export interface GetTableColumnResponse{
     result:Lookup<string>[];
     errorMessage: any;
     timeGenerated: string;
+}
+
+export interface GetPageResponse{
+    result:Property;
+    errorMessage: any;
+    timeGenerated: string;
+}
+
+export interface Property{
+    result:PageModel[];
+    count:number;
 }

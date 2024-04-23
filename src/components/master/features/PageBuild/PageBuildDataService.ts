@@ -1,9 +1,18 @@
 import httpClient from "@/services/httpClient";
-import { GetTableColumnResponse, GetTableSchemaResponse } from "./PageBuild.model";
+import { GetPageResponse, GetTableColumnResponse, GetTableSchemaResponse } from "./PageBuild.model";
+import { DeleteResponse, PostResponse } from "../../common/Master.model";
 
 export class PageBuildDataService{
-    async PostPageInputs(){
-        
+    async postPageInputs(payload:any){
+        return httpClient.post<PostResponse>(`Page/PostPageInputs`,payload);
+    }
+
+    async fetchPages(payload:any){
+        return httpClient.post<GetPageResponse>(`Page/GetPages`,payload);
+    }
+
+    async deletePage(id:string){
+        return httpClient.delete<DeleteResponse>(`Page/DeletePage?id=${id}`);
     }
 
     async fetchTableSchemas(){

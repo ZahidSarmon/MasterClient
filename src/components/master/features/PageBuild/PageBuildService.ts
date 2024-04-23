@@ -1,32 +1,49 @@
 import { defineComponent } from 'vue';
-import { ComboInputTableRef, Page, PageInput} from './PageBuild.model';
+import { ComboInputTableRef, PageInput, PageModel, Property} from './PageBuild.model';
 import modal from '@/components/common/modalManage';
 import _ from 'lodash';
 import toasterService from '@/services/toasterService';
-import httpClient from '@/services/httpClient';
 import { helperUtility } from '@/services/helperUtility';
 import { DataType, FieldType, Lookup, PostResponse, dataTypeLookup, fieldTypeLookup } from '../../common/Master.model';
-import { DropDownListComponent } from "@syncfusion/ej2-vue-dropdowns";
+import { DropDownListComponent,MultiSelectComponent,AutoCompleteComponent } from "@syncfusion/ej2-vue-dropdowns";
 import { CheckBoxComponent } from "@syncfusion/ej2-vue-buttons";
 import { DatePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { DateTimePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { pageBuildHelper } from './PageBuildHelper';
 import { PageBuildDataService } from './PageBuildDataService';
+import { L10n, setCulture } from '@syncfusion/ej2-base';
+import { DialogUtility } from '@syncfusion/ej2-vue-popups';
+import { GridComponent as EjsGrid, ColumnsDirective as EColumns, ColumnDirective as EColumn,  Resize, Toolbar, CommandColumn, Page, Group,Sort,Freeze }
+    from '@syncfusion/ej2-vue-grids';
+
+const _pageData: Property = {} as Property;
+
+let Confirmation: any = undefined;
 
 export default defineComponent({
     name: 'PageBuildComponent',
     components:{
-        'ejs-dropdownlist' : DropDownListComponent,
         "ejs-checkbox": CheckBoxComponent,
         'ejs-datepicker' : DatePickerComponent,
         'ejs-datetimepicker' : DateTimePickerComponent,
+        "ejs-grid": EjsGrid,
+        "e-columns": EColumns,
+        "e-column": EColumn,
+        'ejs-dropdownlist' : DropDownListComponent,
+        'ejs-multiselect' : MultiSelectComponent,
+        'ejs-autocomplete' : AutoCompleteComponent,
+    },
+    provide: {
+        grid: [Toolbar,Resize, CommandColumn, Page,Sort,Group,Freeze]
     },
     created() {
         this.dataService = new PageBuildDataService();
+        this.gridLocalize();
     },
     data() {
         return{
             dataService:{} as PageBuildDataService,
+            helperUtility:helperUtility,
             fieldType:{
                 data:fieldTypeLookup,
                 model:FieldType,
@@ -41,6 +58,7 @@ export default defineComponent({
                 isDataBaseSource:false,
                 static:{
                     model:{} as Lookup<string>,
+                    fields: { text: 'name', value: 'id' },
                 },
                 tableSource:{
                     model:{} as Lookup<string>,
@@ -58,7 +76,9 @@ export default defineComponent({
                     }
                 }
             },
-            form: {} as Page,
+            form: {
+                id: helperUtility.getGUID(),
+            } as PageModel,
             pageInputs:[] as PageInput[],
             pageInput:{
                 comboInput:{
@@ -68,6 +88,22 @@ export default defineComponent({
                     }
                 }
             } as PageInput,
+            pageTable:{
+                data:_pageData,
+                searchOptions: { fields: ['DatabaseName','Name','Definition'], operator: 'contains', ignoreCase: true },
+                editSettings: { allowAdding: true },
+                toolbar: ['Search'],
+                pageSettings: {
+                    pageSizes: [10, 20, 50, 100],
+                    pageSize: 50,
+                    pageCount: 1
+                },
+                commands: [
+                    { type: 'Edit', buttonOption: { cssClass: 'e-flat', iconCss: 'e-edit e-icons' } },
+                    { type: 'Delete', buttonOption: { cssClass: 'e-flat', iconCss: 'e-delete e-icons' } },
+                ],
+                locale: '',
+            }
 
         }
     },
@@ -79,7 +115,79 @@ export default defineComponent({
             return helperUtility.getDateFormat();
         },
     },
+    mounted(){
+        this.dataStateChange(this.initState());
+    },
     methods:{
+        initState():any{
+            const state = {
+                        skip: 0,
+                        take: this.pageTable.pageSettings.pageSize
+                    };
+            return state;
+        },
+        dataStateChange(state:any) {
+            this.gridLocalize();
+            this.loadPages(state);
+        },
+        loadPages(state:any) {
+            if (state.action) {
+                delete state.action;
+            }
+
+            this.dataService.fetchPages(state).then((response) => {
+                if (response.result) {
+                    this.pageTable.data = response.result;
+                }
+            }).catch(() => { });
+        },
+        commandClick: function (args: { commandColumn: any, rowData: any }) {
+            const app = this;
+            if (args) {
+                switch (args.commandColumn.type) {
+                    case 'Delete':
+                        this.form.id = args.rowData.id;
+                        Confirmation = DialogUtility.confirm({
+                            title: this.$t("Delete Confirmation"),
+                            content: this.$t("Are you sure you want to delete this record?"),
+                            okButton: {
+                            text: this.$t("ok"),
+                            click: async function () {
+                                Confirmation.hide();
+                                app.onDelete(app.form.id);
+                            },
+                            },
+                            cancelButton: { text: this.$t("cancel") },
+                            showCloseIcon: true,
+                            closeOnEscape: true,
+                            zIndex: 10000,
+                            animationSettings: { effect: "Zoom" },
+                        });
+                        break;
+                    case 'Edit':
+                        this.form = args.rowData;
+                        this.pageInputs = JSON.parse(this.form.definition);
+                        break;
+                    default: break;
+                }
+            }
+        },
+        toolbarClick: function (args: any) {
+            
+        },
+        gridLocalize() {
+            this.pageTable.locale = 'en-grid';
+            if (this.$i18n.locale == 'se') {
+                setTimeout(() => {
+                    // import(`@/assets/sv.json`).then(module => {
+                    //     const localText = module.default;
+                    //     this.pageTable.locale = 'sv';
+                    //     setCulture('sv');
+                    //     L10n.load(localText);
+                    // });
+                });
+            }
+        },
         addInput(){
             this.pageInput = {
                 isUpdate:false,
@@ -103,9 +211,16 @@ export default defineComponent({
                 return;
             }
             this.close('inputModal');
-            this.pageInput.id = helperUtility.getGUID();
-            this.pageInput.databaseName = this.pageInput.databaseName.replaceAll(" ","_");
-            if(!this.pageInput.isUpdate) this.pageInputs.push(this.pageInput);
+            if(this.pageInput.isUpdate){
+                console.log("Update:",this.pageInput);
+                console.log("Updates:",this.pageInputs);
+                const index = this.pageInputs.findIndex(item => item.id === this.pageInput.id);
+                if(index==-1) return;
+                this.pageInputs[index] = _.cloneDeep(this.pageInput);
+            }else{
+                this.pageInput.id = helperUtility.getGUID();
+                this.pageInputs.push(this.pageInput);
+            }
         },
         removeField(id:string){
             this.pageInputs = this.pageInputs.filter(item => item.id !== id);
@@ -113,23 +228,35 @@ export default defineComponent({
         editField(id:string){
             const index = this.pageInputs.findIndex(item => item.id === id);
             if(index==-1) return;
-            this.pageInput = this.pageInputs[index];
+            this.pageInput = _.cloneDeep(this.pageInputs[index]);
             this.pageInput.isUpdate = true;
             this.open('inputModal');
         },
-        async createForm(){
+        async upsertPageInput(){
             this.form.definition = JSON.stringify(this.pageInputs);
-            this.form.databaseName = this.form.databaseName.replaceAll(" ","_");
+
+            if(!pageBuildHelper.isValidPage(this.form)){
+                toasterService.error(pageBuildHelper.getPageValidStatus(this.form)!);
+                return;
+            }
+
             const payload = {
                 ...this.form
             }
 
-           console.log("payload: ",payload);
-            const response = await httpClient.post<PostResponse>(`Page`,payload);
+            const response = await this.dataService.postPageInputs(payload);
             if(response){
-                this.pageInputs=[];
+                this.resetPageInput();
                 toasterService.success('Form Created Successfully');
             }
+        },
+        onDelete(id:string){
+            this.dataService.deletePage(id).then(response => {
+                if(response && response.result){
+                    toasterService.success('Form Deleted Successfully');
+                    this.loadPages(this.initState());
+                }
+            })
         },
         fieldTypeChange(fieldType:string){
             // if(this.fieldType.Text==fieldType){
@@ -158,7 +285,7 @@ export default defineComponent({
         },
         addFixedValue(){
             if(_.isEmpty(this.comboInputManage.static.model.name)) return;
-            this.comboInputManage.static.model.id = helperUtility.getGUID();
+            this.comboInputManage.static.model.id = this.comboInputManage.static.model.name;
             this.pageInput.comboInput.data.push(this.comboInputManage.static.model);
             this.comboInputManage.static.model = {} as Lookup<string>;
         },
@@ -199,6 +326,13 @@ export default defineComponent({
             return this.pageInput.fieldType == FieldType.DropDown
             || this.pageInput.fieldType == FieldType.AutoComplete
             || this.pageInput.fieldType == FieldType.MultiSelect;
+        },
+        resetPageInput(){
+            this.pageInputs=[];
+            this.form = {
+                id: helperUtility.getGUID(),
+            } as PageModel;
+            this.loadPages(this.initState());
         },
         open(id:string){
             modal.Open(id);

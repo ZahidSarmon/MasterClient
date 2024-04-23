@@ -2,12 +2,12 @@ import { defineComponent } from 'vue';
 import _ from 'lodash';
 import toasterService from '@/services/toasterService';
 import httpClient from '@/services/httpClient';
-import {PageModel} from './PageManageModel';
+import {ComboInput, PageModel, PostPageInputValueModel, PutPageInputValueModel} from './PageManageModel';
 import { DeleteResponse, FieldType, Lookup } from '../../common/Master.model';
 import { PageManageDataService } from './PageManageDataService';
 import { DialogUtility } from '@syncfusion/ej2-vue-popups';
 
-import { DropDownListComponent,MultiSelectComponent  } from "@syncfusion/ej2-vue-dropdowns";
+import { DropDownListComponent,MultiSelectComponent,AutoCompleteComponent  } from "@syncfusion/ej2-vue-dropdowns";
 import { CheckBoxComponent } from "@syncfusion/ej2-vue-buttons";
 import { DatePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { DateTimePickerComponent } from "@syncfusion/ej2-vue-calendars";
@@ -19,24 +19,26 @@ let Confirmation: any = undefined;
 export default defineComponent({
     name: 'PageManageComponent',
     components:{
-        'ejs-dropdownlist' : DropDownListComponent,
         "ejs-checkbox": CheckBoxComponent,
         'ejs-datepicker' : DatePickerComponent,
         'ejs-datetimepicker' : DateTimePickerComponent,
+        'ejs-dropdownlist' : DropDownListComponent,
         'ejs-multiselect' : MultiSelectComponent,
+        'ejs-autocomplete' : AutoCompleteComponent,
     },
     data() {
         return{
+            helperUtility:helperUtility,
             dataService:{} as PageManageDataService,
             pageInputs:[] as PageInput[],
-            pageModel:{} as PageModel,
             pageInputValue:{
                 columns:[] as string[],
                 data:[] as any[]
             },
             page:{
                 value:"",
-                data:[] as Lookup<string>[],
+                model:{} as PageModel,
+                data:[] as PageModel[],
                 fields: { text: 'name', value: 'id' },
             },
             comboData:{
@@ -69,13 +71,14 @@ export default defineComponent({
             }
         },
         async loadPages(){
-            const response = await this.dataService.GetPages();
-            if(response && response.result){
-                this.page.data = response.result;
-            }
+            this.dataService.fetchLookupPages().then(response=>{
+                if(response && response.result){
+                    this.page.data = response.result;
+                }
+            });
         },
         async loadPageInputValue(id:string){
-            const response = await this.dataService.GetPageInputValues(id);
+            const response = await this.dataService.fetchPageInputValues(id);
             if(response && response.result){
                 const result = response.result;
                 this.pageInputValue.columns = this.getColumns(result.columnString);
@@ -84,30 +87,62 @@ export default defineComponent({
             }
         },
         async savePageInputValues(){
-            console.log("pageInputs:",this.pageInputs);
-            // const fieldNames = this.pageInputs.map(item => item.databaseName);
-            // const queryValues = new Map<string,string>();
-            // if(this.isUpdate){
-            //     for(const pageInput of _.cloneDeep(this.pageInputs)){
-            //         queryValues.set(pageInput.databaseName,String(pageInput.value));
-            //     }
-            //     queryValues.set('Id',_.cloneDeep(this.pageInputs).shift()!.id);
+            const fieldNames = this.pageInputs.map(item => item.databaseName);
+            const queryValues = new Map<string,string>();
+            if(this.isUpdate){
+                const comboInputs = [] as ComboInput[];
+                for(const pageInput of _.cloneDeep(this.pageInputs)){
+                    queryValues.set(pageInput.databaseName,String(pageInput.value));
+                    comboInputs.push({
+                        data:pageInput.comboInput.data,
+                        tableName:pageInput.comboInput.tableRef.tableName,
+                        tableSchema:pageInput.comboInput.tableRef.tableSchema
+                    });
+                }
+                queryValues.set('Id',_.cloneDeep(this.pageInputs).shift()!.id);
 
-            //     const response = await this.dataService.PutPageInputValues(this.pageModel.databaseName,fieldNames,queryValues,this.user);
+                const payload = {
+                    columns:fieldNames,
+                    columnWithValues:queryValues,
+                    tableName:this.page.model.databaseName,
+                    modifiedBy:this.user,
+                    comboInputs:comboInputs
+                } as PutPageInputValueModel;
 
-            //     if(response && response.result){
-            //         toasterService.success('Data Updated Successfully');
-            //     }
-            // }else{
-            //     for(const pageInput of _.cloneDeep(this.pageInputs)){
-            //         queryValues.set(pageInput.databaseName,String(pageInput.value));
-            //     }
+                this.dataService.PutPageInputValues(payload)
+                .then(response=>{
+                    if(response && response.result){
+                        this.resetPageInput();
+                        toasterService.success('Data Updated Successfully');
+                    }
+                });
+            }else{
+                const comboInputs = [] as ComboInput[];
+                for(const pageInput of _.cloneDeep(this.pageInputs)){
+                    queryValues.set(pageInput.databaseName,String(pageInput.value));
+                    comboInputs.push({
+                        data:pageInput.comboInput.data,
+                        tableName:pageInput.comboInput.tableRef.tableName,
+                        tableSchema:pageInput.comboInput.tableRef.tableSchema
+                    });
+                }
 
-            //     const response = await this.dataService.PostPageInputValues(this.pageModel.databaseName,fieldNames,queryValues,this.user);
-            //     if(response){
-            //         toasterService.success('Data Saved Successfully');
-            //     }
-            // }
+                const payload = {
+                    columns:fieldNames,
+                    columnWithValues:queryValues,
+                    tableName:this.page.model.databaseName,
+                    createdBy:this.user,
+                    comboInputs:comboInputs
+                } as PostPageInputValueModel;
+
+                this.dataService.PostPageInputValues(payload)
+                .then(response=>{
+                    if(response && response.result){
+                        this.resetPageInput();
+                        toasterService.success('Data Inserted Successfully');
+                    }
+                });
+            }
 
             //this.loadPageInputValue(this.pageModel.id);
         },  
@@ -126,7 +161,7 @@ export default defineComponent({
                     }
                     const response = await httpClient.delete<DeleteResponse>(`Page/DeletePageInputValues`,payload);
                     if(response && response.result){
-                        app.loadPageInputValue(app.pageModel.id);
+                        app.loadPageInputValue(app.page.model.id);
                         toasterService.success('Data Deleted Successfully');
                     }
                   },
@@ -153,9 +188,10 @@ export default defineComponent({
         },
         deletePageInput(item:any){
             const id = Object.values(item).shift();
-            this.deletePageInputValues(String(id),this.pageModel.databaseName);
+            this.deletePageInputValues(String(id),this.page.model.databaseName);
         },
         pageChange(){
+            this.page.model = this.page.data.find(x=>x.id == this.page.value)! as PageModel;
             this.loadPageInputs(this.page.value);
             //this.loadPageInputValue(this.page.value);
         },
@@ -189,27 +225,5 @@ export default defineComponent({
             });
             this.isUpdate = false;
         },
-        isTextBox(fieldType:string){
-            return fieldType == FieldType.Text 
-            || fieldType == FieldType.Number
-        },
-        isDate(fieldType:string){
-            return fieldType == FieldType.Date;
-        },
-        isDropDown(fieldType:string){
-            return fieldType == FieldType.DropDown;
-        },
-        isMultiSelect(fieldType:string){
-            return fieldType == FieldType.MultiSelect;
-        },
-        isCheckBox(fieldType:string){
-            return fieldType == FieldType.CheckBox;
-        },
-        isRadioButton(fieldType:string){
-            return fieldType == FieldType.Radio;
-        },
-        isAutoComplete(fieldType:string){
-            return fieldType == FieldType.AutoComplete;
-        }
     }
 });

@@ -10,14 +10,14 @@ export interface PageInput{
     decimalPlace:number;
     placeHolder:string;
     comboInput:ComboInput;
-    radioInputs:Selective<string>[];
-    checkBoxInputs:Selective<string>[];
+    radioInput:RadioInput;
+    checkBoxInput:CheckBoxInput;
     defaultDate:string;
     isRequired:boolean;
     ordinal:number;
     isMax:boolean;
     isUpdate:boolean;
-    value:string;
+    value:string|null|undefined;
 }
 
 export interface PageModel{
@@ -29,13 +29,25 @@ export interface PageModel{
     isUpdate:false;
 }
 
+export interface RadioInput{
+    isDataBaseSource:boolean;
+    data:string[];
+    tableRef:DatabaseTableRef;
+}
+
+export interface CheckBoxInput{
+    isDataBaseSource:boolean;
+    data:Lookup<string>[];
+    tableRef:DatabaseTableRef;
+}
+
 export interface ComboInput{
     isDataBaseSource:boolean;
     data:Lookup<string>[],
-    tableRef:ComboInputTableRef;
+    tableRef:DatabaseTableRef;
 }
 
-export interface ComboInputTableRef{
+export interface DatabaseTableRef{
     tableSchema:string;
     tableName:string;
     idColumn:string;

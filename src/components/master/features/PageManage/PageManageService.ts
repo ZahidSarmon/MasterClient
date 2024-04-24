@@ -2,13 +2,13 @@ import { defineComponent } from 'vue';
 import _ from 'lodash';
 import toasterService from '@/services/toasterService';
 import httpClient from '@/services/httpClient';
-import {ComboInput, PageModel, PostPageInputValueModel, PutPageInputValueModel} from './PageManageModel';
-import { DeleteResponse, FieldType, Lookup } from '../../common/Master.model';
+import {ComboInput, PageModel, PostPageInputValueModel} from './PageManageModel';
+import { DeleteResponse, FieldType } from '../../common/Master.model';
 import { PageManageDataService } from './PageManageDataService';
 import { DialogUtility } from '@syncfusion/ej2-vue-popups';
 
 import { DropDownListComponent,MultiSelectComponent,AutoCompleteComponent  } from "@syncfusion/ej2-vue-dropdowns";
-import { CheckBoxComponent } from "@syncfusion/ej2-vue-buttons";
+import { CheckBoxComponent,RadioButtonComponent } from "@syncfusion/ej2-vue-buttons";
 import { DatePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { DateTimePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { helperUtility } from '@/services/helperUtility';
@@ -25,6 +25,7 @@ export default defineComponent({
         'ejs-dropdownlist' : DropDownListComponent,
         'ejs-multiselect' : MultiSelectComponent,
         'ejs-autocomplete' : AutoCompleteComponent,
+        "ejs-radiobutton": RadioButtonComponent,
     },
     data() {
         return{
@@ -65,6 +66,7 @@ export default defineComponent({
     methods:{
         async loadPageInputs(id:string){
             const response = await this.dataService.GetPageInputs(id);
+            this.pageInputs = [] as PageInput[];
             if(response && response.result){
                 this.pageInputs = response.result;
                 console.log("response.result:",response.result);
@@ -83,68 +85,48 @@ export default defineComponent({
                 const result = response.result;
                 this.pageInputValue.columns = this.getColumns(result.columnString);
                 this.pageInputValue.data = JSON.parse(result.valueString);
-                this.resetPageInput();
             }
         },
         async savePageInputValues(){
             const fieldNames = this.pageInputs.map(item => item.databaseName);
             const queryValues = new Map<string,string>();
+            let id = null;
             if(this.isUpdate){
-                const comboInputs = [] as ComboInput[];
-                for(const pageInput of _.cloneDeep(this.pageInputs)){
-                    queryValues.set(pageInput.databaseName,String(pageInput.value));
-                    comboInputs.push({
-                        data:pageInput.comboInput.data,
-                        tableName:pageInput.comboInput.tableRef.tableName,
-                        tableSchema:pageInput.comboInput.tableRef.tableSchema
-                    });
-                }
-                queryValues.set('Id',_.cloneDeep(this.pageInputs).shift()!.id);
-
-                const payload = {
-                    columns:fieldNames,
-                    columnWithValues:queryValues,
-                    tableName:this.page.model.databaseName,
-                    modifiedBy:this.user,
-                    comboInputs:comboInputs
-                } as PutPageInputValueModel;
-
-                this.dataService.PutPageInputValues(payload)
-                .then(response=>{
-                    if(response && response.result){
-                        this.resetPageInput();
-                        toasterService.success('Data Updated Successfully');
-                    }
-                });
-            }else{
-                const comboInputs = [] as ComboInput[];
-                for(const pageInput of _.cloneDeep(this.pageInputs)){
-                    queryValues.set(pageInput.databaseName,String(pageInput.value));
-                    comboInputs.push({
-                        data:pageInput.comboInput.data,
-                        tableName:pageInput.comboInput.tableRef.tableName,
-                        tableSchema:pageInput.comboInput.tableRef.tableSchema
-                    });
-                }
-
-                const payload = {
-                    columns:fieldNames,
-                    columnWithValues:queryValues,
-                    tableName:this.page.model.databaseName,
-                    createdBy:this.user,
-                    comboInputs:comboInputs
-                } as PostPageInputValueModel;
-
-                this.dataService.PostPageInputValues(payload)
-                .then(response=>{
-                    if(response && response.result){
-                        this.resetPageInput();
-                        toasterService.success('Data Inserted Successfully');
-                    }
-                });
+                id = _.cloneDeep(this.pageInputs).shift()!.id;
             }
 
-            //this.loadPageInputValue(this.pageModel.id);
+            console.log("pageInputs:",this.pageInputs);
+
+            // const comboInputs = [] as ComboInput[];
+            // for(const pageInput of _.cloneDeep(this.pageInputs)){
+            //     queryValues.set(pageInput.databaseName,String(pageInput.value));
+            //     if(pageInput.fieldType == FieldType.MultiSelect){
+            //         comboInputs.push({
+            //             data:pageInput.comboInput.data,
+            //             tableName:pageInput.comboInput.tableRef.tableName,
+            //             tableSchema:pageInput.comboInput.tableRef.tableSchema
+            //         });
+            //     }
+            // }
+            
+            // if(id) queryValues.set('Id',id);
+
+            // const payload = {
+            //     id:id,
+            //     columns:fieldNames,
+            //     columnWithValues:queryValues,
+            //     tableName:this.page.model.databaseName,
+            //     user:this.user,
+            //     comboInputs:comboInputs
+            // } as PostPageInputValueModel;
+
+            // this.dataService.PostPageInputValues(payload)
+            // .then(response=>{
+            //     if(response && response.result){
+            //         this.loadPageInputValue(this.page.model.id);
+            //         toasterService.success('Data Save/Updated Successfully');
+            //     }
+            // });
         },  
         async deletePageInputValues(id:string,tableName:string){
             const app = this;
@@ -193,7 +175,7 @@ export default defineComponent({
         pageChange(){
             this.page.model = this.page.data.find(x=>x.id == this.page.value)! as PageModel;
             this.loadPageInputs(this.page.value);
-            //this.loadPageInputValue(this.page.value);
+            this.loadPageInputValue(this.page.value);
         },
         getColumns(columnString:string){
             if(!columnString) return [] as string[];
@@ -220,9 +202,11 @@ export default defineComponent({
             });
         },
         resetPageInput(){
-            this.pageInputs.forEach(item=>{
-                item.value = '';
-            });
+            // const pageInputs = _.cloneDeep(this.pageInputs);
+            // pageInputs.forEach(item=>{
+            //     item.value = null;
+            // });
+            this.pageInputs = [] as PageInput[];
             this.isUpdate = false;
         },
     }

@@ -1,16 +1,5 @@
 <template>
     <div  class="container-fluid" style="padding-top:0.5em">
-        <div class="card card-body m-2 p-0 pt-2 pb-2">
-            <div class="row">
-                <div class="col-sm-auto">
-                    <div class="btn btn-sm btn-primary" @click="addInput">
-                        <i class="fas fa-plus">
-                        Add Input
-                        </i>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="card card-body m-2 form-responsive">
             <div class="row">
                 <div class="col-md-5">
@@ -30,29 +19,15 @@
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-sm btn-primary ml-2" @click="upsertPageInput">Build Form <i class="fas fa-plus-circle"></i></button>
+                    <div class="btn btn-sm btn-primary" @click="addInput">
+                        <i class="fas fa-plus">
+                        Add Input
+                        </i>
+                    </div>
                 </div>
             </div>
-            <div class="row mt-2">
-                <!-- <template v-for="(item,index) in pageInputs" :key="index">
-                    <div class="col-md-10 p-0">
-                        <div class="form-group input-field">
-                            <label :for="item.id">{{ item.title }}</label>
-                            <input :type="item.fieldType" :name="item.title" :id="item.id" :placeholder="item.placeHolder" class="e-input" />
-                        </div>
-                    </div>
-                    <div class="col-md-2" style="padding-top:2.3em">
-                        <div class="row">
-                            <a href="#" :id="'edit'+index" class="edit-item mr-2" @click="editField(item.id)">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="#" :id="'delete'+index" class="delete-item" @click="removeField(item.id)">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </div>
-                    </div>
-                </template> -->
-                <div class="table-responsive" v-if="pageInputs && pageInputs.length>0">
+            <div class="row mt-2" v-if="pageInputs && pageInputs.length>0">
+                <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                         </thead>
@@ -67,7 +42,16 @@
                                         <ejs-datepicker v-model="item.value" :value="getCurrentDate" :format="getDateFormat"></ejs-datepicker>
                                     </div>
                                     <div class="form-group input-field" v-if="helperUtility.isCheckBox(item.fieldType)">
-                                        <ejs-checkbox  :id="item.id" v-model="item.value" :label='item.title'>{{ item.title }}</ejs-checkbox>
+                                        <ejs-checkbox  
+                                        v-for="(checkItem,checkIndex) in item.checkBoxInput.data" :key="checkIndex" 
+                                        :id="checkItem+'_'+checkIndex" :label="checkItem" :name="checkItem" class="mr-2"
+                                        >{{ item.title }}</ejs-checkbox>
+                                    </div>
+                                    <div class="form-group input-field" v-if="helperUtility.isRadioButton(item.fieldType)">
+                                        <div class="form-check form-check-inline" v-for="(radioItem,radioIndex) in item.radioInput.data" :key="radioIndex">
+                                            <input class="form-check-input" type="radio" v-model="item.value" :name="item.title" :id="item.title+'_'+radioIndex" :value="radioItem">
+                                            <label class="form-check-label" :for="item.title+'_'+radioIndex">{{ radioItem }}</label>
+                                        </div>
                                     </div>
                                     <div class="form-group input-field" v-if="helperUtility.isDropDown(item.fieldType)">
                                         <ejs-dropdownlist :id="'dropdown_'+item.id" v-model="item.value" 
@@ -93,6 +77,7 @@
                         </tbody>
                     </table>
                 </div>
+                <button class="btn btn-sm btn-primary" @click="upsertPageInput">Build Form <i class="fas fa-plus-circle"></i></button>
             </div>
             <div class="row mt-2">
                 <ejs-grid ref="gridPage" 
@@ -157,13 +142,13 @@
                             <label for="dropdownRef" class="col-sm-2 col-form-label">{{ 'Dropdown Ref.' }}</label>
                             <div class="col-sm-2" v-if="pageInput.comboInput.isDataBaseSource">
                                 <ejs-dropdownlist id='dropdownlist_schema' v-model="pageInput.comboInput.tableRef.tableSchema" 
-                                 @change="onChangeSchema"
+                                 @change="onChangeSchemaDropdown"
                                  placeholder='Select a schema' :dataSource='comboInputManage.tableSource.schema.data' :fields='comboInputManage.tableSource.schema.fields'>
                                 </ejs-dropdownlist>
                             </div>
                             <div class="col-sm-2" v-if="pageInput.comboInput.isDataBaseSource">
                                 <ejs-dropdownlist id='dropdownlist_table' v-model="pageInput.comboInput.tableRef.tableName" 
-                                @change="onChangeTable"
+                                @change="onChangeTableDropdown"
                                  placeholder='Select a table' :dataSource='comboInputManage.tableSource.table.data' :fields='comboInputManage.tableSource.table.fields'>
                                 </ejs-dropdownlist>
                             </div>
@@ -178,7 +163,7 @@
                                 </ejs-dropdownlist>
                             </div>
                             <div class="col-sm-2">
-                                <ejs-checkbox  id="dbSource_checkbox" @click="onClickHasDatabaseSource" v-model="pageInput.comboInput.isDataBaseSource" label='Has Database Source'>Has Database source</ejs-checkbox>
+                                <ejs-checkbox  id="dbSource_checkbox" @click="onClickHasDatabaseSourceDropdown" v-model="pageInput.comboInput.isDataBaseSource" label='Has Database Source'>Has Database source</ejs-checkbox>
                             </div>
                         </div>
                         <div class="form-group row" v-if="!pageInput.comboInput.isDataBaseSource && hasDropdown()">
@@ -195,7 +180,7 @@
                                         <tr v-for="(item,index) in pageInput.comboInput.data" :key="index" class="border-left border-bottom">
                                             <td>{{ item.name }}</td>
                                             <td>
-                                                <a href="#" @click="removeFixedValue(item.id)"><i class="fas fa-trash-alt"></i></a>
+                                                <a href="#" @click="removeFixedValueDropdown(item.id)"><i class="fas fa-trash-alt"></i></a>
                                             </td>
                                         </tr>
                                         <tr class="border-left border-bottom">
@@ -203,7 +188,111 @@
                                                 <input type="text" class="e-input" v-model="comboInputManage.static.model.name"/>
                                             </td>
                                             <td>
-                                                <a href="#" class="btn btn-sm btn-primary" @click="addFixedValue()"><i class="fas fa-plus"></i></a>
+                                                <a href="#" class="btn btn-sm btn-primary" @click="addFixedValueDropdown()"><i class="fas fa-plus"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-if="hasRadio()">
+                            <label for="radioRef" class="col-sm-2 col-form-label">{{ 'Radio Ref.' }}</label>
+                            <div class="col-sm-2" v-if="pageInput.radioInput.isDataBaseSource">
+                                <ejs-dropdownlist id='radio_schema' v-model="pageInput.radioInput.tableRef.tableSchema" 
+                                 @change="onChangeSchemaRadio"
+                                 placeholder='Select a schema' :dataSource='radioInputManage.tableSource.schema.data' :fields='radioInputManage.tableSource.schema.fields'>
+                                </ejs-dropdownlist>
+                            </div>
+                            <div class="col-sm-2" v-if="pageInput.radioInput.isDataBaseSource">
+                                <ejs-dropdownlist id='radio_table' v-model="pageInput.radioInput.tableRef.tableName" 
+                                @change="onChangeTableRadio"
+                                 placeholder='Select a table' :dataSource='radioInputManage.tableSource.table.data' :fields='radioInputManage.tableSource.table.fields'>
+                                </ejs-dropdownlist>
+                            </div>
+                            <div class="col-sm-2" v-if="pageInput.radioInput.isDataBaseSource">
+                                <ejs-dropdownlist id='radio_columnId' v-model="pageInput.radioInput.tableRef.idColumn"
+                                 placeholder='Select a column' :dataSource='radioInputManage.tableSource.column.data' :fields='radioInputManage.tableSource.column.fields'>
+                                </ejs-dropdownlist>
+                            </div>
+                            <div class="col-sm-2">
+                                <ejs-checkbox  id="radio_dbSource_checkbox" @click="onClickHasDatabaseSourceRadio" v-model="pageInput.radioInput.isDataBaseSource" label='Has Database Source'>Has Database source</ejs-checkbox>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-if="!pageInput.radioInput.isDataBaseSource && hasRadio()">
+                            <label for="radio_data" class="col-sm-2 col-form-label">{{ 'Radio Data' }}</label>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm">
+                                    <thead>
+                                        <tr class="border-left">
+                                            <th>Name</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item,index) in pageInput.radioInput.data" :key="index" class="border-left border-bottom">
+                                            <td>{{ item }}</td>
+                                            <td>
+                                                <a href="#" @click="removeFixedValueRadio(item)"><i class="fas fa-trash-alt"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-left border-bottom">
+                                            <td>
+                                                <input type="text" class="e-input" v-model="radioInputManage.static.model"/>
+                                            </td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-primary" @click="addFixedValueRadio()"><i class="fas fa-plus"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-if="hasCheckbox()">
+                            <label for="checkboxRef" class="col-sm-2 col-form-label">{{ 'Checkbox Ref.' }}</label>
+                            <div class="col-sm-2" v-if="pageInput.checkBoxInput.isDataBaseSource">
+                                <ejs-dropdownlist id='checkbox_schema' v-model="pageInput.checkBoxInput.tableRef.tableSchema" 
+                                 @change="onChangeSchemaCheckbox"
+                                 placeholder='Select a schema' :dataSource='checkboxInputManage.tableSource.schema.data' :fields='checkboxInputManage.tableSource.schema.fields'>
+                                </ejs-dropdownlist>
+                            </div>
+                            <div class="col-sm-2" v-if="pageInput.checkBoxInput.isDataBaseSource">
+                                <ejs-dropdownlist id='checkbox_table' v-model="pageInput.checkBoxInput.tableRef.tableName" 
+                                @change="onChangeTableCheckbox"
+                                 placeholder='Select a table' :dataSource='checkboxInputManage.tableSource.table.data' :fields='checkboxInputManage.tableSource.table.fields'>
+                                </ejs-dropdownlist>
+                            </div>
+                            <div class="col-sm-2" v-if="pageInput.checkBoxInput.isDataBaseSource">
+                                <ejs-dropdownlist id='checkbox_columnId' v-model="pageInput.checkBoxInput.tableRef.idColumn"
+                                 placeholder='Select a column' :dataSource='checkboxInputManage.tableSource.column.data' :fields='checkboxInputManage.tableSource.column.fields'>
+                                </ejs-dropdownlist>
+                            </div>
+                            <div class="col-sm-2">
+                                <ejs-checkbox  id="checkbox_dbSource_checkbox" @click="onClickHasDatabaseSourceCheckbox" v-model="pageInput.checkBoxInput.isDataBaseSource" label='Has Database Source'>Has Database source</ejs-checkbox>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-if="!pageInput.checkBoxInput.isDataBaseSource && hasCheckbox()">
+                            <label for="checkbox_data" class="col-sm-2 col-form-label">{{ 'Checkbox Data' }}</label>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm">
+                                    <thead>
+                                        <tr class="border-left">
+                                            <th>Name</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item,index) in pageInput.checkBoxInput.data" :key="index" class="border-left border-bottom">
+                                            <td>{{ item.name }}</td>
+                                            <td>
+                                                <a href="#" @click="removeFixedValueCheckbox(item.id)"><i class="fas fa-trash-alt"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-left border-bottom">
+                                            <td>
+                                                <input type="text" class="e-input" v-model="checkboxInputManage.static.model.name"/>
+                                            </td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-primary" @click="addFixedValueCheckbox()"><i class="fas fa-plus"></i></a>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -291,7 +380,7 @@
     }
 
     .form-responsive{
-        height: calc(100vh - 200px);
+        height: calc(100vh - 150px);
         overflow-y: auto;
     }
 

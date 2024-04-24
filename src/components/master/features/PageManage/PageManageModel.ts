@@ -13,19 +13,12 @@ export interface ComboInput{
     tableSchema:string;
 }
 
-export interface PutPageInputValueModel{
-    tableName:string;
-    columns:string[];
-    columnWithValues:Map<string,string>;
-    modifiedBy:string;
-    comboInputs:ComboInput[];
-}
-
 export interface PostPageInputValueModel{
+    id:string|null|undefined;
     tableName:string;
     columns:string[];
     columnWithValues:Map<string,string>;
-    createdBy:string;
+    user:string;
     comboInputs:ComboInput[];
 }
 

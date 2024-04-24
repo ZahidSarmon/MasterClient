@@ -1,12 +1,12 @@
 import { defineComponent } from 'vue';
-import { ComboInputTableRef, PageInput, PageModel, Property} from './PageBuild.model';
+import { DatabaseTableRef, PageInput, PageModel, Property} from './PageBuild.model';
 import modal from '@/components/common/modalManage';
-import _ from 'lodash';
+import _, { has } from 'lodash';
 import toasterService from '@/services/toasterService';
 import { helperUtility } from '@/services/helperUtility';
-import { DataType, FieldType, Lookup, PostResponse, dataTypeLookup, fieldTypeLookup } from '../../common/Master.model';
+import { DataType, FieldType, Lookup, PostResponse, Selective, dataTypeLookup, fieldTypeLookup } from '../../common/Master.model';
 import { DropDownListComponent,MultiSelectComponent,AutoCompleteComponent } from "@syncfusion/ej2-vue-dropdowns";
-import { CheckBoxComponent } from "@syncfusion/ej2-vue-buttons";
+import { CheckBoxComponent,RadioButtonComponent  } from "@syncfusion/ej2-vue-buttons";
 import { DatePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { DateTimePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { pageBuildHelper } from './PageBuildHelper';
@@ -32,6 +32,7 @@ export default defineComponent({
         'ejs-dropdownlist' : DropDownListComponent,
         'ejs-multiselect' : MultiSelectComponent,
         'ejs-autocomplete' : AutoCompleteComponent,
+        "ejs-radiobutton": RadioButtonComponent
     },
     provide: {
         grid: [Toolbar,Resize, CommandColumn, Page,Sort,Group,Freeze]
@@ -76,12 +77,68 @@ export default defineComponent({
                     }
                 }
             },
+            radioInputManage:{
+                isDataBaseSource:false,
+                static:{
+                    model:"",
+                    fields: { text: 'name', value: 'id' },
+                },
+                tableSource:{
+                    model:{} as Lookup<string>,
+                    schema:{
+                        data:[] as Lookup<string>[],
+                        fields: { text: 'name', value: 'id' },
+                    },
+                    table:{
+                        data:[] as Lookup<string>[],
+                        fields: { text: 'name', value: 'id' },
+                    },
+                    column:{
+                        data:[] as Lookup<string>[],
+                        fields: { text: 'name', value: 'id' },
+                    }
+                }
+            },
+            checkboxInputManage:{
+                isDataBaseSource:false,
+                static:{
+                    model:{}as Lookup<string>,
+                    fields: { text: 'name', value: 'id' },
+                },
+                tableSource:{
+                    model:{} as Lookup<string>,
+                    schema:{
+                        data:[] as Lookup<string>[],
+                        fields: { text: 'name', value: 'id' },
+                    },
+                    table:{
+                        data:[] as Lookup<string>[],
+                        fields: { text: 'name', value: 'id' },
+                    },
+                    column:{
+                        data:[] as Lookup<string>[],
+                        fields: { text: 'name', value: 'id' },
+                    }
+                }
+            },
             form: {
                 id: helperUtility.getGUID(),
             } as PageModel,
             pageInputs:[] as PageInput[],
             pageInput:{
                 comboInput:{
+                    isDataBaseSource:false,
+                    data:[] as Lookup<string>[],
+                    tableRef:{
+                    }
+                },
+                radioInput:{
+                    isDataBaseSource:false,
+                    data:[] as string[],
+                    tableRef:{
+                    }
+                },
+                checkBoxInput:{
                     isDataBaseSource:false,
                     data:[] as Lookup<string>[],
                     tableRef:{
@@ -201,6 +258,20 @@ export default defineComponent({
                     tableRef:{
 
                     }
+                },
+                radioInput:{
+                    isDataBaseSource:false,
+                    data:[] as string[],
+                    tableRef:{
+
+                    }
+                },
+                checkBoxInput:{
+                    isDataBaseSource:false,
+                    data:[] as Lookup<string>[],
+                    tableRef:{
+
+                    }
                 }
             } as PageInput;
             this.open('inputModal');
@@ -266,7 +337,7 @@ export default defineComponent({
             //     this.pageInput.dataType = this.dataType.Int;
             // }
         },
-        onChangeSchema(){
+        onChangeSchemaDropdown(){
             const schema = this.pageInput.comboInput.tableRef.tableSchema;
             this.dataService.fetchTableNames(schema).then(response => {
                 if(response && response.result){
@@ -274,7 +345,23 @@ export default defineComponent({
                 }
             });
         },
-        onChangeTable(){
+        onChangeSchemaRadio(){
+            const schema = this.pageInput.radioInput.tableRef.tableSchema;
+            this.dataService.fetchTableNames(schema).then(response => {
+                if(response && response.result){
+                    this.radioInputManage.tableSource.table.data = response.result;
+                }
+            });
+        },
+        onChangeSchemaCheckbox(){
+            const schema = this.pageInput.checkBoxInput.tableRef.tableSchema;
+            this.dataService.fetchTableNames(schema).then(response => {
+                if(response && response.result){
+                    this.checkboxInputManage.tableSource.table.data = response.result;
+                }
+            });
+        },
+        onChangeTableDropdown(){
             const schema = this.pageInput.comboInput.tableRef.tableSchema;
             const table = this.pageInput.comboInput.tableRef.tableName;
             this.dataService.fetchTableColumns(schema,table).then(response => {
@@ -283,14 +370,49 @@ export default defineComponent({
                 }
             });
         },
-        addFixedValue(){
+        onChangeTableRadio(){
+            const schema = this.pageInput.radioInput.tableRef.tableSchema;
+            const table = this.pageInput.radioInput.tableRef.tableName;
+            this.dataService.fetchTableColumns(schema,table).then(response => {
+                if(response && response.result){
+                    this.radioInputManage.tableSource.column.data = response.result;
+                }
+            });
+        },
+        onChangeTableCheckbox(){
+            const schema = this.pageInput.checkBoxInput.tableRef.tableSchema;
+            const table = this.pageInput.checkBoxInput.tableRef.tableName;
+            this.dataService.fetchTableColumns(schema,table).then(response => {
+                if(response && response.result){
+                    this.checkboxInputManage.tableSource.column.data = response.result;
+                }
+            });
+        },
+        addFixedValueDropdown(){
             if(_.isEmpty(this.comboInputManage.static.model.name)) return;
             this.comboInputManage.static.model.id = this.comboInputManage.static.model.name;
             this.pageInput.comboInput.data.push(this.comboInputManage.static.model);
             this.comboInputManage.static.model = {} as Lookup<string>;
         },
-        removeFixedValue(id:string){
+        addFixedValueRadio(){
+            if(_.isEmpty(this.radioInputManage.static.model)) return;
+            this.pageInput.radioInput.data.push(this.radioInputManage.static.model);
+            this.radioInputManage.static.model = "";
+        },
+        addFixedValueCheckbox(){
+            if(_.isEmpty(this.checkboxInputManage.static.model)) return;
+            this.checkboxInputManage.static.model.id = this.checkboxInputManage.static.model.name;
+            this.pageInput.checkBoxInput.data.push(this.checkboxInputManage.static.model);
+            this.checkboxInputManage.static.model = {} as Lookup<string>;
+        },
+        removeFixedValueDropdown(id:string){
             this.pageInput.comboInput.data = this.pageInput.comboInput.data.filter(item => item.id !== id);
+        },
+        removeFixedValueRadio(id:string){
+            this.pageInput.radioInput.data = this.pageInput.radioInput.data.filter(item => item !== id);
+        },
+        removeFixedValueCheckbox(id:string){
+            this.pageInput.checkBoxInput.data = this.pageInput.checkBoxInput.data.filter(item => item.id !== id);
         },
         onClickIsMax(){
             this.pageInput.size = "";
@@ -298,13 +420,35 @@ export default defineComponent({
                 this.pageInput.size = "max";
             }
         },
-        onClickHasDatabaseSource(){
-            this.pageInput.comboInput.tableRef = {} as ComboInputTableRef;
+        onClickHasDatabaseSourceDropdown(){
+            this.pageInput.comboInput.tableRef = {} as DatabaseTableRef;
             this.pageInput.comboInput.data = [];
             if(this.pageInput.comboInput.isDataBaseSource){
                 this.dataService.fetchTableSchemas().then(response => {
                     if(response && response.result){
                         this.comboInputManage.tableSource.schema.data = response.result;
+                    }
+                });
+            }
+        },
+        onClickHasDatabaseSourceRadio(){
+            this.pageInput.radioInput.tableRef = {} as DatabaseTableRef;
+            this.pageInput.radioInput.data = [];
+            if(this.pageInput.radioInput.isDataBaseSource){
+                this.dataService.fetchTableSchemas().then(response => {
+                    if(response && response.result){
+                        this.radioInputManage.tableSource.schema.data = response.result;
+                    }
+                });
+            }
+        },
+        onClickHasDatabaseSourceCheckbox(){
+            this.pageInput.checkBoxInput.tableRef = {} as DatabaseTableRef;
+            this.pageInput.checkBoxInput.data = [];
+            if(this.pageInput.checkBoxInput.isDataBaseSource){
+                this.dataService.fetchTableSchemas().then(response => {
+                    if(response && response.result){
+                        this.checkboxInputManage.tableSource.schema.data = response.result;
                     }
                 });
             }
@@ -326,6 +470,12 @@ export default defineComponent({
             return this.pageInput.fieldType == FieldType.DropDown
             || this.pageInput.fieldType == FieldType.AutoComplete
             || this.pageInput.fieldType == FieldType.MultiSelect;
+        },
+        hasRadio(){
+            return this.pageInput.fieldType == FieldType.Radio;
+        },
+        hasCheckbox(){
+            return this.pageInput.fieldType == FieldType.CheckBox;
         },
         resetPageInput(){
             this.pageInputs=[];

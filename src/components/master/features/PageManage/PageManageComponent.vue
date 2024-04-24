@@ -24,8 +24,29 @@
                             <label :for="item.id">{{ item.title }}</label>
                             <ejs-datepicker v-model="item.value" :value="getCurrentDate" :format="getDateFormat"></ejs-datepicker>
                         </div>
-                        <div class="form-group input-field" v-if="helperUtility.isCheckBox(item.fieldType)">
-                            <ejs-checkbox  :id="item.id" v-model="item.value" :label='item.title'>{{ item.title }}</ejs-checkbox>
+                        <div class="form-group input-field row" v-if="helperUtility.isCheckBox(item.fieldType)">
+                            <div class="col-sm-1">
+                                <label :for="item.id">{{ item.title }}</label>
+                            </div>
+                            <div class="col-sm-11">
+                                <span v-for="(checkItem,checkIndex) in item.checkBoxInput.data" :key="checkIndex">
+                                    <ejs-checkbox   
+                                        v-model="item.value"
+                                        :id="checkItem+'_'+checkIndex" :label="checkItem" :name="checkItem" class="mr-2"
+                                        >{{ item.title }}</ejs-checkbox>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group input-field row" v-if="helperUtility.isRadioButton(item.fieldType)">
+                            <div class="col-sm-1">
+                                <label :for="item.id">{{ item.title }}</label>
+                            </div>
+                            <div class="col-sm-11">
+                                <div class="form-check form-check-inline" v-for="(radioItem,radioIndex) in item.radioInput.data" :key="radioIndex">
+                                    <input class="form-check-input" type="radio" v-model="item.value" :name="item.title" :id="item.title+'_'+radioIndex" :value="radioItem">
+                                    <label class="form-check-label" :for="item.title+'_'+radioIndex">{{ radioItem }}</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group input-field" v-if="helperUtility.isDropDown(item.fieldType)">
                             <label :for="item.id">{{ item.title }}</label>
@@ -72,5 +93,8 @@
     </div>
 </template>
 <script src="./PageManageService"></script>
-<style scoped>
+<style>
+.e-checkbox-wrapper e-wrapper{
+    margin-right:1em;
+}
 </style>

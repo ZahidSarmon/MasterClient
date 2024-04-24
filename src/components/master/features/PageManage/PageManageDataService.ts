@@ -1,5 +1,5 @@
 import httpClient from "@/services/httpClient";
-import { GetPageInputResponse, GetPageInputValueResponse, GetPageLookupResponse, PostPageInputValueModel, PutPageInputValueModel } from "./PageManageModel";
+import { GetPageInputResponse, GetPageInputValueResponse, GetPageLookupResponse, PostPageInputValueModel } from "./PageManageModel";
 import { PostResponse, PutResponse } from "../../common/Master.model";
 
 export class PageManageDataService{
@@ -16,23 +16,13 @@ export class PageManageDataService{
         return await httpClient.get<GetPageInputResponse>(`Page/GetPageInputs?id=${id}`);
     }
 
-    async PutPageInputValues(putPayload:PutPageInputValueModel){
-        const payload = {
-            tableName:putPayload.tableName,
-            columns:putPayload.columns,
-            columnWithValues:Object.fromEntries(putPayload.columnWithValues),
-            modifiedBy:putPayload.modifiedBy,
-            comboInputs:putPayload.comboInputs,
-        }
-        return await httpClient.put<PutResponse>(`Page/PutPageInputValues`,payload);
-    }
-
     async PostPageInputValues(postPayload:PostPageInputValueModel){
         const payload = {
+            id:postPayload.id,
             tableName:postPayload.tableName,
             columns:postPayload.columns,
             columnWithValues:Object.fromEntries(postPayload.columnWithValues),
-            createdBy:postPayload.createdBy,
+            user:postPayload.user,
             comboInputs:postPayload.comboInputs,
         }
         return await httpClient.post<PostResponse>(`Page/PostPageInputValues`,payload);

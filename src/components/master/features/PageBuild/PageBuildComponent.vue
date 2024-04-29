@@ -1,6 +1,6 @@
 <template>
-    <div  class="container-fluid" style="padding-top:0.5em">
-        <div class="card card-body m-2 form-responsive">
+    <div class="container-fluid">
+        <div class="card card-body m-2">
             <div class="row">
                 <div class="col-md-5">
                     <div class="input-group input-group-sm mb-3">
@@ -79,6 +79,9 @@
                 </div>
                 <button class="btn btn-sm btn-primary" @click="upsertPageInput">Build Form <i class="fas fa-plus-circle"></i></button>
             </div>
+            
+        </div>
+        <div class="card card-body m-2">
             <div class="row mt-2">
                 <ejs-grid ref="gridPage" 
                     :dataSource="pageTable.data" 
@@ -121,21 +124,6 @@
                             <label for="fieldType_name" class="col-sm-2 col-form-label">{{ 'Field Type' }}</label>
                             <div class="col-sm-9">
                                 <ejs-dropdownlist id='dropdownlist_fieldType' v-model="pageInput.fieldType" placeholder='Select a field type' :dataSource='fieldType.data' :fields='fieldType.fields'></ejs-dropdownlist>
-                            </div>
-                        </div>
-                        <div class="row" v-if="pageInput.fieldType != fieldType.model.MultiSelect">
-                            <label for="databaseType_name" class="col-sm-2 col-form-label">{{ 'Database Type' }}</label>
-                            <div class="col-sm-9">
-                                <ejs-dropdownlist id='dropdownlist_databaseType' v-model="pageInput.dataType" placeholder='Select a database type' :dataSource='dataType.data' :fields='dataType.fields'></ejs-dropdownlist>
-                            </div>
-                        </div>
-                        <div class="form-group row" v-if="hasSize() && pageInput.fieldType != fieldType.model.MultiSelect">
-                            <label for="size" class="col-sm-2 col-form-label">{{ 'Size' }}</label>
-                            <div :class="hasMax()?'col-sm-7':'col-sm-9'">
-                                <input type="text" class="e-input" id="size" v-model="pageInput.size" :disabled="pageInput.isMax">
-                            </div>
-                            <div class="col-sm-2" v-if="hasMax()">
-                                <ejs-checkbox  id="sizeMax_checkbox" @click="onClickIsMax" v-model="pageInput.isMax" label='Is Max'>Is Max</ejs-checkbox>
                             </div>
                         </div>
                         <div class="form-group row" v-if="hasDropdown()">
@@ -323,6 +311,21 @@
                                 <input type="text" class="e-input" id="form_databaseName" v-model="pageInput.databaseName">
                             </div>
                         </div>
+                        <div class="row" v-if="pageInput.fieldType != fieldType.model.MultiSelect">
+                            <label for="databaseType_name" class="col-sm-2 col-form-label">{{ 'Database Type' }}</label>
+                            <div class="col-sm-9">
+                                <ejs-dropdownlist id='dropdownlist_databaseType' v-model="pageInput.dataType" placeholder='Select a database type' :dataSource='dataType.data' :fields='dataType.fields'></ejs-dropdownlist>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-if="hasSize() && pageInput.fieldType != fieldType.model.MultiSelect">
+                            <label for="size" class="col-sm-2 col-form-label">{{ 'Size' }}</label>
+                            <div :class="hasMax()?'col-sm-7':'col-sm-9'">
+                                <input type="text" class="e-input" id="size" v-model="pageInput.size" :disabled="pageInput.isMax">
+                            </div>
+                            <div class="col-sm-2" v-if="hasMax()">
+                                <ejs-checkbox  id="sizeMax_checkbox" @click="onClickIsMax" v-model="pageInput.isMax" label='Is Max'>Is Max</ejs-checkbox>
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label for="form_title" class="col-sm-2 col-form-label">{{ 'Title' }}</label>
                             <div class="col-sm-9">
@@ -385,13 +388,13 @@
     }
 
     .table-responsive{
-        height: calc(100vh - 700px);
+        height: calc(100vh - 550px);
         overflow-y: auto;
     }
 
     .e-grid .e-gridcontent{
         overflow-y: auto;
-        height: calc(100vh - 690px) !important;
+        height: calc(100vh - 490px) !important;
     }
 
     .table td{

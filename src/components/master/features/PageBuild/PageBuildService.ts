@@ -304,6 +304,7 @@ export default defineComponent({
             this.open('inputModal');
         },
         async upsertPageInput(){
+            console.log("pageInput:",this.pageInputs);
             this.form.definition = JSON.stringify(this.pageInputs);
 
             if(!pageBuildHelper.isValidPage(this.form)){
@@ -403,6 +404,7 @@ export default defineComponent({
             if(_.isEmpty(this.checkboxInputManage.static.model)) return;
             this.checkboxInputManage.static.model.id = this.checkboxInputManage.static.model.name;
             this.pageInput.checkBoxInput.data.push(this.checkboxInputManage.static.model);
+            console.log("Checkbox:",this.pageInput.checkBoxInput.data);
             this.checkboxInputManage.static.model = {} as Lookup<string>;
         },
         removeFixedValueDropdown(id:string){

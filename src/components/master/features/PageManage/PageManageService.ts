@@ -95,38 +95,38 @@ export default defineComponent({
                 id = _.cloneDeep(this.pageInputs).shift()!.id;
             }
 
-            console.log("pageInputs:",this.pageInputs);
+            //console.log("pageInputs:",this.pageInputs);
 
-            // const comboInputs = [] as ComboInput[];
-            // for(const pageInput of _.cloneDeep(this.pageInputs)){
-            //     queryValues.set(pageInput.databaseName,String(pageInput.value));
-            //     if(pageInput.fieldType == FieldType.MultiSelect){
-            //         comboInputs.push({
-            //             data:pageInput.comboInput.data,
-            //             tableName:pageInput.comboInput.tableRef.tableName,
-            //             tableSchema:pageInput.comboInput.tableRef.tableSchema
-            //         });
-            //     }
-            // }
+            const comboInputs = [] as ComboInput[];
+            for(const pageInput of _.cloneDeep(this.pageInputs)){
+                queryValues.set(pageInput.databaseName,String(pageInput.value));
+                if(pageInput.fieldType == FieldType.MultiSelect){
+                    comboInputs.push({
+                        data:pageInput.comboInput.data,
+                        tableName:pageInput.comboInput.tableRef.tableName,
+                        tableSchema:pageInput.comboInput.tableRef.tableSchema
+                    });
+                }
+            }
             
-            // if(id) queryValues.set('Id',id);
+            if(id) queryValues.set('Id',id);
 
-            // const payload = {
-            //     id:id,
-            //     columns:fieldNames,
-            //     columnWithValues:queryValues,
-            //     tableName:this.page.model.databaseName,
-            //     user:this.user,
-            //     comboInputs:comboInputs
-            // } as PostPageInputValueModel;
+            const payload = {
+                id:id,
+                columns:fieldNames,
+                columnWithValues:queryValues,
+                tableName:this.page.model.databaseName,
+                user:this.user,
+                comboInputs:comboInputs
+            } as PostPageInputValueModel;
 
-            // this.dataService.PostPageInputValues(payload)
-            // .then(response=>{
-            //     if(response && response.result){
-            //         this.loadPageInputValue(this.page.model.id);
-            //         toasterService.success('Data Save/Updated Successfully');
-            //     }
-            // });
+            this.dataService.PostPageInputValues(payload)
+            .then(response=>{
+                if(response && response.result){
+                    this.loadPageInputValue(this.page.model.id);
+                    toasterService.success('Data Save/Updated Successfully');
+                }
+            });
         },  
         async deletePageInputValues(id:string,tableName:string){
             const app = this;

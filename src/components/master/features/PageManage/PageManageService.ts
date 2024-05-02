@@ -13,6 +13,7 @@ import { DatePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { DateTimePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { helperUtility } from '@/services/helperUtility';
 import { PageInput } from '../PageBuild/PageBuild.model';
+import { pageManageHelper } from './PageManageHelper';
 
 let Confirmation: any = undefined;
 
@@ -69,6 +70,9 @@ export default defineComponent({
             this.pageInputs = [] as PageInput[];
             if(response && response.result){
                 this.pageInputs = response.result;
+                _.map(this.pageInputs,item=>{
+                    item.checkBoxInput.models = _.map(item.checkBoxInput.data,(x:string)=>({id:x,name:x,isChecked:false}));
+                });
                 console.log("response.result:",response.result);
             }
         },
@@ -80,6 +84,7 @@ export default defineComponent({
             });
         },
         async loadPageInputValue(id:string){
+            this.resetPageInput();
             const response = await this.dataService.fetchPageInputValues(id);
             if(response && response.result){
                 const result = response.result;
@@ -88,6 +93,11 @@ export default defineComponent({
             }
         },
         async savePageInputValues(){
+            if(!pageManageHelper.isValidPageInput(this.pageInputs)){
+                toasterService.error(`Please fill all required fields`);
+                return;
+            }   
+
             const fieldNames = this.pageInputs.map(item => item.databaseName);
             const queryValues = new Map<string,string>();
             let id = null;
@@ -95,17 +105,21 @@ export default defineComponent({
                 id = _.cloneDeep(this.pageInputs).shift()!.id;
             }
 
-            //console.log("pageInputs:",this.pageInputs);
-
             const comboInputs = [] as ComboInput[];
             for(const pageInput of _.cloneDeep(this.pageInputs)){
-                queryValues.set(pageInput.databaseName,String(pageInput.value));
                 if(pageInput.fieldType == FieldType.MultiSelect){
                     comboInputs.push({
                         data:pageInput.comboInput.data,
                         tableName:pageInput.comboInput.tableRef.tableName,
                         tableSchema:pageInput.comboInput.tableRef.tableSchema
                     });
+                }
+
+                if(pageInput.fieldType == FieldType.CheckBox){
+                    const values = pageInput.checkBoxInput.models.filter(x=>x.isChecked).map(x=>x.name);
+                    queryValues.set(pageInput.databaseName,values.join(','));
+                }else{
+                    queryValues.set(pageInput.databaseName,String(pageInput.value));
                 }
             }
             
@@ -166,6 +180,15 @@ export default defineComponent({
                     item.value = String(value[1]);
                     this.isUpdate = true;
                 }
+                if(item.fieldType == FieldType.CheckBox){
+                    _.map(String(item.value).split(','),(x:string)=>{
+                        _.map(item.checkBoxInput.models,(y)=>{
+                            if(x.trim().toLowerCase() == y.name.trim().toLowerCase()){
+                                y.isChecked = true;
+                            }
+                        });
+                    })
+                }
             });
         },
         deletePageInput(item:any){
@@ -202,11 +225,12 @@ export default defineComponent({
             });
         },
         resetPageInput(){
-            // const pageInputs = _.cloneDeep(this.pageInputs);
-            // pageInputs.forEach(item=>{
-            //     item.value = null;
-            // });
-            this.pageInputs = [] as PageInput[];
+            _.map(this.pageInputs,item=>{
+                item.value = null;
+                _.map(item.checkBoxInput.models,(x)=>{
+                    x.isChecked = false;
+                })
+            });
             this.isUpdate = false;
         },
     }

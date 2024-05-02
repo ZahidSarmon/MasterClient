@@ -37,8 +37,9 @@ export interface RadioInput{
 
 export interface CheckBoxInput{
     isDataBaseSource:boolean;
-    data:Lookup<string>[];
+    data:string[];
     tableRef:DatabaseTableRef;
+    models:Selective<string>[];
 }
 
 export interface ComboInput{

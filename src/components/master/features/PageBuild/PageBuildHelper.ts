@@ -15,7 +15,7 @@ export const pageBuildHelper = {
             return "Field Type is required";
         }
 
-        if(pageInput.fieldType != FieldType.MultiSelect){
+        if(pageInput.fieldType != FieldType.MultiSelect && pageInput.fieldType != FieldType.CheckBox){
             if(_.isEmpty(pageInput.dataType)){
                 return "Data Type is required";
             }
@@ -112,7 +112,7 @@ export const pageBuildHelper = {
             return false;
         }
         
-        if(pageInput.fieldType != FieldType.MultiSelect){
+        if(pageInput.fieldType != FieldType.MultiSelect && pageInput.fieldType != FieldType.CheckBox){
             if(_.isEmpty(pageInput.dataType)){
                 return false;
             }

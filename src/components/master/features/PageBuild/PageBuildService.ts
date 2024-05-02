@@ -102,7 +102,7 @@ export default defineComponent({
             checkboxInputManage:{
                 isDataBaseSource:false,
                 static:{
-                    model:{}as Lookup<string>,
+                    model:"",
                     fields: { text: 'name', value: 'id' },
                 },
                 tableSource:{
@@ -140,7 +140,7 @@ export default defineComponent({
                 },
                 checkBoxInput:{
                     isDataBaseSource:false,
-                    data:[] as Lookup<string>[],
+                    data:[] as string[],
                     tableRef:{
                     }
                 }
@@ -268,7 +268,7 @@ export default defineComponent({
                 },
                 checkBoxInput:{
                     isDataBaseSource:false,
-                    data:[] as Lookup<string>[],
+                    data:[] as string[],
                     tableRef:{
 
                     }
@@ -402,10 +402,8 @@ export default defineComponent({
         },
         addFixedValueCheckbox(){
             if(_.isEmpty(this.checkboxInputManage.static.model)) return;
-            this.checkboxInputManage.static.model.id = this.checkboxInputManage.static.model.name;
             this.pageInput.checkBoxInput.data.push(this.checkboxInputManage.static.model);
-            console.log("Checkbox:",this.pageInput.checkBoxInput.data);
-            this.checkboxInputManage.static.model = {} as Lookup<string>;
+            this.checkboxInputManage.static.model = "";
         },
         removeFixedValueDropdown(id:string){
             this.pageInput.comboInput.data = this.pageInput.comboInput.data.filter(item => item.id !== id);
@@ -414,7 +412,7 @@ export default defineComponent({
             this.pageInput.radioInput.data = this.pageInput.radioInput.data.filter(item => item !== id);
         },
         removeFixedValueCheckbox(id:string){
-            this.pageInput.checkBoxInput.data = this.pageInput.checkBoxInput.data.filter(item => item.id !== id);
+            this.pageInput.checkBoxInput.data = this.pageInput.checkBoxInput.data.filter(item => item !== id);
         },
         onClickIsMax(){
             this.pageInput.size = "";
@@ -454,6 +452,12 @@ export default defineComponent({
                     }
                 });
             }
+        },
+        clear(){
+            this.pageInputs = [];
+            this.form = {
+                id: helperUtility.getGUID(),
+            } as PageModel;
         },
         hasMax(){
             return this.pageInput.dataType == DataType.Varchar 

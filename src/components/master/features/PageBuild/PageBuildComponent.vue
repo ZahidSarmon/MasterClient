@@ -1,6 +1,11 @@
 <template>
     <div class="container-fluid">
         <div class="card card-body m-2">
+            <div class="row mb-1">
+                <div class="col-md-12">
+                    <button class="btn btn-primary btn-sm" @click="clear">Clear</button>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-5">
                     <div class="input-group input-group-sm mb-3">
@@ -156,7 +161,7 @@
                         </div>
                         <div class="form-group row" v-if="!pageInput.comboInput.isDataBaseSource && hasDropdown()">
                             <label for="dropdown_data" class="col-sm-2 col-form-label">{{ 'Dropdown Data' }}</label>
-                            <div class="table-responsive">
+                            <div class="col-sm-10">
                                 <table class="table table-striped table-sm">
                                     <thead>
                                         <tr class="border-left">
@@ -208,7 +213,7 @@
                         </div>
                         <div class="form-group row" v-if="!pageInput.radioInput.isDataBaseSource && hasRadio()">
                             <label for="radio_data" class="col-sm-2 col-form-label">{{ 'Radio Data' }}</label>
-                            <div class="table-responsive">
+                            <div class="col-sm-10">
                                 <table class="table table-striped table-sm">
                                     <thead>
                                         <tr class="border-left">
@@ -260,7 +265,7 @@
                         </div>
                         <div class="form-group row" v-if="!pageInput.checkBoxInput.isDataBaseSource && hasCheckbox()">
                             <label for="checkbox_data" class="col-sm-2 col-form-label">{{ 'Checkbox Data' }}</label>
-                            <div class="table-responsive">
+                            <div class="col-sm-10">
                                 <table class="table table-striped table-sm">
                                     <thead>
                                         <tr class="border-left">
@@ -270,14 +275,14 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item,index) in pageInput.checkBoxInput.data" :key="index" class="border-left border-bottom">
-                                            <td>{{ item.name }}</td>
+                                            <td>{{ item }}</td>
                                             <td>
-                                                <a href="#" @click="removeFixedValueCheckbox(item.id)"><i class="fas fa-trash-alt"></i></a>
+                                                <a href="#" @click="removeFixedValueCheckbox(item)"><i class="fas fa-trash-alt"></i></a>
                                             </td>
                                         </tr>
                                         <tr class="border-left border-bottom">
                                             <td>
-                                                <input type="text" class="e-input" v-model="checkboxInputManage.static.model.name"/>
+                                                <input type="text" class="e-input" v-model="checkboxInputManage.static.model"/>
                                             </td>
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-primary" @click="addFixedValueCheckbox()"><i class="fas fa-plus"></i></a>
@@ -305,19 +310,27 @@
                                 <ejs-checkbox  id="form_checkbox" v-model="pageInput.isRequired" label='Is Required'>Is Required</ejs-checkbox>
                             </div>
                         </div>
-                        <div class="form-group row" v-if="pageInput.fieldType != fieldType.model.MultiSelect">
+                        <div class="form-group row" 
+                        v-if="
+                        pageInput.fieldType != fieldType.model.MultiSelect
+                        ">
                             <label for="form_databaseName" class="col-sm-2 col-form-label">{{ 'Database Name' }}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="e-input" id="form_databaseName" v-model="pageInput.databaseName">
                             </div>
                         </div>
-                        <div class="row" v-if="pageInput.fieldType != fieldType.model.MultiSelect">
+                        <div class="row" 
+                            v-if="
+                            pageInput.fieldType != fieldType.model.MultiSelect
+                            ">
                             <label for="databaseType_name" class="col-sm-2 col-form-label">{{ 'Database Type' }}</label>
                             <div class="col-sm-9">
                                 <ejs-dropdownlist id='dropdownlist_databaseType' v-model="pageInput.dataType" placeholder='Select a database type' :dataSource='dataType.data' :fields='dataType.fields'></ejs-dropdownlist>
                             </div>
                         </div>
-                        <div class="form-group row" v-if="hasSize() && pageInput.fieldType != fieldType.model.MultiSelect">
+                        <div class="form-group row" v-if="hasSize() 
+                            && pageInput.fieldType != fieldType.model.MultiSelect
+                            ">
                             <label for="size" class="col-sm-2 col-form-label">{{ 'Size' }}</label>
                             <div :class="hasMax()?'col-sm-7':'col-sm-9'">
                                 <input type="text" class="e-input" id="size" v-model="pageInput.size" :disabled="pageInput.isMax">

@@ -17,29 +17,29 @@
                 <template v-for="(item,index) in pageInputs" :key="index">
                     <div class="col-md-12">
                         <div class="form-group input-field" v-if="helperUtility.isTextBox(item.fieldType)">
-                            <label :for="item.id">{{ item.title }}</label>
+                            <label :for="item.id"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
                             <input :type="item.fieldType" :name="item.title" :id="item.id" v-model="item.value" :placeholder="item.placeHolder" class="e-input" />
                         </div>
                         <div class="form-group input-field" v-if="helperUtility.isDate(item.fieldType)">
-                            <label :for="item.id">{{ item.title }}</label>
+                            <label :for="item.id"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
                             <ejs-datepicker v-model="item.value" :value="getCurrentDate" :format="getDateFormat"></ejs-datepicker>
                         </div>
                         <div class="form-group input-field row" v-if="helperUtility.isCheckBox(item.fieldType)">
                             <div class="col-sm-1">
-                                <label :for="item.id">{{ item.title }}</label>
+                                <label :for="item.id"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
                             </div>
                             <div class="col-sm-11">
                                 <span v-for="(checkItem,checkIndex) in item.checkBoxInput.data" :key="checkIndex">
                                     <ejs-checkbox   
-                                        v-model="item.value"
-                                        :id="checkItem+'_'+checkIndex" :label="checkItem" :name="checkItem" class="mr-2"
+                                        v-model="item.checkBoxInput.models[checkIndex].isChecked"
+                                        :id="checkItem+'_'+checkIndex" :label="checkItem" :name="item.title" style="margin-left:1em;"
                                         >{{ item.title }}</ejs-checkbox>
                                 </span>
                             </div>
                         </div>
                         <div class="form-group input-field row" v-if="helperUtility.isRadioButton(item.fieldType)">
                             <div class="col-sm-1">
-                                <label :for="item.id">{{ item.title }}</label>
+                                <label :for="item.id"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
                             </div>
                             <div class="col-sm-11">
                                 <div class="form-check form-check-inline" v-for="(radioItem,radioIndex) in item.radioInput.data" :key="radioIndex">
@@ -48,23 +48,29 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group input-field" v-if="helperUtility.isDropDown(item.fieldType)">
-                            <label :for="item.id">{{ item.title }}</label>
-                            <ejs-dropdownlist :id="'dropdown_'+item.id" v-model="item.value" 
-                                :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
-                            </ejs-dropdownlist>
+                        <div class="form-group input-field row" v-if="helperUtility.isDropDown(item.fieldType)">
+                            <label :for="item.id" class="col-sm-1"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
+                            <div class="col-sm-11">
+                                <ejs-dropdownlist :id="'dropdown_'+item.id" v-model="item.value" 
+                                    :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
+                                </ejs-dropdownlist>
+                            </div>
                         </div>
-                        <div class="form-group input-field" v-if="helperUtility.isMultiSelect(item.fieldType)">
-                            <label :for="item.id">{{ item.title }}</label>
-                            <ejs-multiselect :id="'multiselect_'+item.id" v-model="item.value" 
-                                :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
-                            </ejs-multiselect>
+                        <div class="form-group input-field row" v-if="helperUtility.isMultiSelect(item.fieldType)">
+                            <label :for="item.id" class="col-sm-1"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
+                            <div class="col-sm-10">
+                                <ejs-multiselect :id="'multiselect_'+item.id" v-model="item.value" 
+                                    :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
+                                </ejs-multiselect>
+                            </div>
                         </div>
-                        <div class="form-group input-field" v-if="helperUtility.isAutoComplete(item.fieldType)">
-                            <label :for="item.id">{{ item.title }}</label>
-                            <ejs-autocomplete :id="'autocomplete_'+item.id" v-model="item.value" 
-                                :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
-                            </ejs-autocomplete>
+                        <div class="form-group input-field row" v-if="helperUtility.isAutoComplete(item.fieldType)">
+                            <label :for="item.id" class="col-sm-1"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
+                            <div class="col-sm-11">
+                                <ejs-autocomplete :id="'autocomplete_'+item.id" v-model="item.value" 
+                                    :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
+                                </ejs-autocomplete>
+                            </div>
                         </div>
                     </div>
                 </template>

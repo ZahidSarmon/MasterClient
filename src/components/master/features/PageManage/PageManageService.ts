@@ -3,7 +3,7 @@ import _ from 'lodash';
 import toasterService from '@/services/toasterService';
 import httpClient from '@/services/httpClient';
 import {ComboInput, PageModel, PostPageInputValueModel} from './PageManageModel';
-import { DeleteResponse, FieldType } from '../../common/Master.model';
+import { DeleteResponse, FieldType, Lookup } from '../../common/Master.model';
 import { PageManageDataService } from './PageManageDataService';
 import { DialogUtility } from '@syncfusion/ej2-vue-popups';
 
@@ -108,8 +108,22 @@ export default defineComponent({
             const comboInputs = [] as ComboInput[];
             for(const pageInput of _.cloneDeep(this.pageInputs)){
                 if(pageInput.fieldType == FieldType.MultiSelect){
+                    const data:Lookup<string>[] = [];
+                    if(pageInput.comboInput.isDataBaseSource){
+                        _.map(pageInput.value,item=>{
+                            _.map(pageInput.comboInput.data,existItem=>{
+                                if(item == existItem.id){
+                                    data.push(existItem);
+                                }
+                            })
+                        })
+                    }else{
+                        _.map(pageInput.value,item=>{
+                            data.push({id:item,name:item});
+                        })
+                    }
                     comboInputs.push({
-                        data:pageInput.comboInput.data,
+                        data:data,
                         tableName:pageInput.comboInput.tableRef.tableName,
                         tableSchema:pageInput.comboInput.tableRef.tableSchema
                     });

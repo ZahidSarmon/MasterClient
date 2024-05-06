@@ -5,7 +5,7 @@ import { authGuard } from "./services/authGuard";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "",
-    redirect: "/home",
+    redirect: "/page-build",
   },
   {
     path: '/:pathMatch(.*)*',

@@ -150,8 +150,6 @@ export default defineComponent({
                 comboInputs:comboInputs
             } as PostPageInputValueModel;
 
-            console.log("payload:",payload);
-
             this.dataService.PostPageInputValues(payload)
             .then(response=>{
                 if(response && response.result){
@@ -259,6 +257,16 @@ export default defineComponent({
                 _.map(item.checkBoxInput.models,(x)=>{
                     x.isChecked = false;
                 })
+                if(item.fieldType == FieldType.MultiSelect){
+                    const ref:any = document.getElementById('multiselect_'+item.id)!;
+                    const input:any = ref.ej2_instances[0];
+                    input.clear();
+                }
+                if(item.fieldType == FieldType.DropDown){
+                    const ref:any = document.getElementById('dropdown_'+item.id)!;
+                    const input:any = ref.ej2_instances[0];
+                    input.clear();
+                }
             });
             this.isUpdate = false;
             this.page.id = "";

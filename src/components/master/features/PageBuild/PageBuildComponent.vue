@@ -1,6 +1,6 @@
 <template>
-    <div class="container-fluid">
-        <div class="card card-body m-2">
+    <div class="container-fluid pt-2 pl-1 pr-1">
+        <div class="card card-body">
             <div class="row mb-1">
                 <div class="col-md-12">
                     <button class="btn btn-primary btn-sm" @click="clear">Clear</button>
@@ -86,7 +86,7 @@
             </div>
             
         </div>
-        <div class="card card-body m-2">
+        <div class="card card-body">
             <div class="row mt-2">
                 <ejs-grid ref="gridPage" 
                     :dataSource="pageTable.data" 
@@ -292,12 +292,6 @@
                                 </table>
                             </div>
                         </div>
-                        <div class="form-group row" v-if="pageInput.dataType == dataType.model.Decimal">
-                            <label for="decimal_field" class="col-sm-2 col-form-label">{{ 'Decimal Place' }}</label>
-                            <div class="col-sm-9">
-                                <input type="number" class="e-input" id="decimal_field" v-model="pageInput.decimalPlace">
-                            </div>
-                        </div>
                         <div class="form-group row" v-if="pageInput.dataType==dataType.model.Date || pageInput.dataType == dataType.model.DateTime">
                             <label for="defaultDate" class="col-sm-2 col-form-label">{{ 'Default Date' }}</label>
                             <div class="col-sm-9">
@@ -326,6 +320,17 @@
                             <label for="databaseType_name" class="col-sm-2 col-form-label">{{ 'Database Type' }}</label>
                             <div class="col-sm-9">
                                 <ejs-dropdownlist id='dropdownlist_databaseType' v-model="pageInput.dataType" placeholder='Select a database type' :dataSource='dataType.data' :fields='dataType.fields'></ejs-dropdownlist>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-if="pageInput.dataType == dataType.model.Decimal || pageInput.dataType == dataType.model.Numeric">
+                            <label for="decimal_field" class="col-sm-2 col-form-label">{{ 'Decimal Place' }}</label>
+                            <div class="col-sm-9">
+                                <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="inputGroup-sizing-sm">18</span>
+                                    </div>
+                                    <input type="number" class="form-control" aria-label="decimal_field" id="decimal_field" v-model="pageInput.decimalPlace" aria-describedby="inputGroup-sizing-sm">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row" v-if="hasSize() 

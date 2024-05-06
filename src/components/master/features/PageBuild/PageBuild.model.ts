@@ -17,7 +17,7 @@ export interface PageInput{
     ordinal:number;
     isMax:boolean;
     isUpdate:boolean;
-    value:string|null|undefined;
+    value:any;
 }
 
 export interface PageModel{

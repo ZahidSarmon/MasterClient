@@ -59,7 +59,7 @@
                         <div class="form-group input-field row" v-if="helperUtility.isMultiSelect(item.fieldType)">
                             <label :for="item.id" class="col-sm-1"><span v-if="item.isRequired" class="text-danger">* </span>{{ item.title }}</label>
                             <div class="col-sm-10">
-                                <ejs-multiselect :id="'multiselect_'+item.id" v-model="item.value" 
+                                <ejs-multiselect :id="'multiselect_'+item.id" :ref="'multiselect_'+item.id" v-model="item.value" 
                                     :placeholder='item.placeHolder' :dataSource='item.comboInput.data' :fields='comboData.fields'>
                                 </ejs-multiselect>
                             </div>

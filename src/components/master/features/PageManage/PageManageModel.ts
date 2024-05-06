@@ -39,6 +39,13 @@ export interface GetPageInputResponse{
     timeGenerated: string;
 }
 
+export interface GetPageInputByIdResponse{
+    result:PageInput[];
+    errorMessage: any;
+    timeGenerated: string;
+
+}
+
 export interface GetPageLookupResponse{
     result:PageModel[];
     errorMessage: any;

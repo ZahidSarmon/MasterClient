@@ -38,6 +38,7 @@ export default defineComponent({
                 data:[] as any[]
             },
             page:{
+                id:"",
                 value:"",
                 model:{} as PageModel,
                 data:[] as PageModel[],
@@ -73,7 +74,8 @@ export default defineComponent({
                 _.map(this.pageInputs,item=>{
                     item.checkBoxInput.models = _.map(item.checkBoxInput.data,(x:string)=>({id:x,name:x,isChecked:false}));
                 });
-                console.log("response.result:",response.result);
+                console.log("loadPageInputs response.result:",response.result);
+                console.log("loadPageInputs pageInputs:",this.pageInputs);
             }
         },
         async loadPages(){
@@ -102,7 +104,7 @@ export default defineComponent({
             const queryValues = new Map<string,string>();
             let id = null;
             if(this.isUpdate){
-                id = _.cloneDeep(this.pageInputs).shift()!.id;
+                id = this.page.id;
             }
 
             const comboInputs = [] as ComboInput[];
@@ -148,10 +150,13 @@ export default defineComponent({
                 comboInputs:comboInputs
             } as PostPageInputValueModel;
 
+            console.log("payload:",payload);
+
             this.dataService.PostPageInputValues(payload)
             .then(response=>{
                 if(response && response.result){
                     this.loadPageInputValue(this.page.model.id);
+                    this.resetPageInput();
                     toasterService.success('Data Save/Updated Successfully');
                 }
             });
@@ -165,15 +170,13 @@ export default defineComponent({
                   text: this.$t("ok"),
                   click: async function () {
                     Confirmation.hide();
-                    const payload = {
-                        tableName:tableName,
-                        id:id
-                    }
-                    const response = await httpClient.delete<DeleteResponse>(`Page/DeletePageInputValues`,payload);
-                    if(response && response.result){
-                        app.loadPageInputValue(app.page.model.id);
-                        toasterService.success('Data Deleted Successfully');
-                    }
+                    app.dataService.deletePageInputValue(id,tableName)
+                    .then(response=>{
+                        if(response && response.result){
+                            app.loadPageInputValue(app.page.model.id);
+                            toasterService.success('Data Deleted Successfully');
+                        }
+                    });
                   },
                 },
                 cancelButton: { text: this.$t("cancel") },
@@ -186,22 +189,34 @@ export default defineComponent({
         editPageInput(item:any){
             const keyValueList = Object.entries(item);
             const id = Object.values(item).shift();
-            _.map(this.pageInputs,item=>{
-                item.id = String(id);
-                const key = item.databaseName;
-                const value = keyValueList.find(x=>x[0]==key);
-                if(value){
-                    item.value = String(value[1]);
-                    this.isUpdate = true;
-                }
-                if(item.fieldType == FieldType.CheckBox){
-                    _.map(String(item.value).split(','),(x:string)=>{
-                        _.map(item.checkBoxInput.models,(y)=>{
-                            if(x.trim().toLowerCase() == y.name.trim().toLowerCase()){
-                                y.isChecked = true;
+            this.page.id = String(id);
+            this.isUpdate = true;
+            this.dataService.fetchPageInputValue(this.page.model.id,String(id)).then(response=>{
+                if(response && response.result){
+                    const data = response.result;
+                    _.map(this.pageInputs,item=>{
+                        const key = item.databaseName;
+                        const value = keyValueList.find(x=>x[0]==key);
+                        if(value){
+                            item.value = String(value[1]);
+                        }
+                        _.map(item.checkBoxInput.models,(y)=>y.isChecked = false);
+                        if(item.fieldType == FieldType.CheckBox){
+                            _.map(String(item.value).split(','),(x:string)=>{
+                                _.map(item.checkBoxInput.models,(y)=>{
+                                    if(x.trim().toLowerCase() == y.name.trim().toLowerCase()){
+                                        y.isChecked = true;
+                                    }
+                                });
+                            })
+                        }
+                        if(item.fieldType == FieldType.MultiSelect){
+                            const findData = data.find(x=>x.id == item.id);
+                            if(findData){
+                                item.value = findData.comboInput.data.map(x=>x.id);
                             }
-                        });
-                    })
+                        }
+                    });
                 }
             });
         },
@@ -246,6 +261,7 @@ export default defineComponent({
                 })
             });
             this.isUpdate = false;
+            this.page.id = "";
         },
     }
 });

@@ -39,4 +39,8 @@ export class PageManageDataService{
         }
         return await httpClient.delete<DeleteResponse>(`Page/DeletePageInputValues`,payload);
     }
+
+    async PostPageExcelInputValues(payload:any){
+        return await httpClient.post<PostResponse>(`Page/PostPageExcelInputValues`,payload);
+    }
 }

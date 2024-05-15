@@ -2,7 +2,7 @@ import { defineComponent } from 'vue';
 import _ from 'lodash';
 import toasterService from '@/services/toasterService';
 import httpClient from '@/services/httpClient';
-import {ComboInput, PageModel, PostPageInputValueModel} from './PageManageModel';
+import {ComboInput, PageModel, PostPageExcelInputValueModel, PostPageInputValueModel} from './PageManageModel';
 import { DeleteResponse, FieldType, Lookup } from '../../common/Master.model';
 import { PageManageDataService } from './PageManageDataService';
 import { DialogUtility } from '@syncfusion/ej2-vue-popups';
@@ -14,6 +14,8 @@ import { DateTimePickerComponent } from "@syncfusion/ej2-vue-calendars";
 import { helperUtility } from '@/services/helperUtility';
 import { PageInput } from '../PageBuild/PageBuild.model';
 import { pageManageHelper } from './PageManageHelper';
+import readXlsxFile from 'read-excel-file';
+
 
 let Confirmation: any = undefined;
 
@@ -65,7 +67,52 @@ export default defineComponent({
             return helperUtility.getDateFormat();
         },
     },
+    unmounted() {
+        document.getElementById("fileImportExcelClient")!.removeEventListener("cancel", (evt) => {
+            console.log("You closed the file picker dialog without selecting a file.");
+        });
+    },
     methods:{
+        clickUploadFileExcel() {
+            if(!this.page.model.id){
+                toasterService.error(`Please select page`);
+                return;
+            } 
+            const fileImportExcelClient: any = this.$refs.fileImportExcelClient;
+            fileImportExcelClient.click();
+            document.getElementById("fileImportExcelClient")!.addEventListener("cancel", (evt) => {
+                console.log("You closed the file picker dialog without selecting a file.");
+            });
+        },
+        UploadFileExcel(event: any) {
+            const target = event.target as HTMLInputElement;
+            console.log("target:",target);
+            if (target && target.files) {
+                if(target.files.length>0){
+                    const file = target.files[0];
+                    readXlsxFile(file).then((row: any) => {
+                        const columns:string[] = [];
+                        const values:string[][]= [];
+                        for (let i = 1; i < row.length; i++) {
+                            if(i==1){
+                            _.map(row[i],(item)=>{
+                                columns.push(item);
+                            });
+                            }else{
+                                const value:string[] = [];
+                                _.map(row[i],(item)=>{
+                                    value.push(String(item));
+                                });
+                                values.push(value);
+                            }
+                        }
+                        this.savePageExcelInputValues(columns,values);
+                    });
+                }else{
+                    toasterService.error(`Please select file`);
+                }
+            }
+        },
         async loadPageInputs(id:string){
             const response = await this.dataService.GetPageInputs(id);
             this.pageInputs = [] as PageInput[];
@@ -74,8 +121,6 @@ export default defineComponent({
                 _.map(this.pageInputs,item=>{
                     item.checkBoxInput.models = _.map(item.checkBoxInput.data,(x:string)=>({id:x,name:x,isChecked:false}));
                 });
-                console.log("loadPageInputs response.result:",response.result);
-                console.log("loadPageInputs pageInputs:",this.pageInputs);
             }
         },
         async loadPages(){
@@ -93,6 +138,28 @@ export default defineComponent({
                 this.pageInputValue.columns = this.getColumns(result.columnString);
                 this.pageInputValue.data = JSON.parse(result.valueString);
             }
+        },
+        async savePageExcelInputValues(columns:string[],values:string[][]){
+            let id = null;
+            if(this.isUpdate){
+                id = this.page.id;
+            }
+            const payload = {
+                id:id,
+                columns:columns,
+                values:values,
+                tableName:this.page.model.databaseName,
+                user:this.user
+            } as PostPageExcelInputValueModel;
+
+            this.dataService.PostPageExcelInputValues(payload)
+            .then(response=>{
+                if(response && response.result){
+                    this.loadPageInputValue(this.page.model.id);
+                    this.resetPageInput();
+                    toasterService.success('Excel Data Save/Updated Successfully');
+                }
+            });
         },
         async savePageInputValues(){
             if(!pageManageHelper.isValidPageInput(this.pageInputs)){
@@ -268,8 +335,15 @@ export default defineComponent({
                     input.clear();
                 }
             });
+            this.resetExcelInput();
             this.isUpdate = false;
             this.page.id = "";
         },
+        resetExcelInput(){
+            const fileImportExcelClient: any = this.$refs.fileImportExcelClient;
+            if(fileImportExcelClient){
+                fileImportExcelClient.value = "";
+            }
+        }
     }
 });

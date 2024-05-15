@@ -22,6 +22,14 @@ export interface PostPageInputValueModel{
     comboInputs:ComboInput[];
 }
 
+export interface PostPageExcelInputValueModel{
+    id:string|null|undefined;
+    tableName:string;
+    columns:string[];
+    values:string[][];
+    user:string;
+}
+
 export interface PageInputValueModel{
     columnString:string;
     valueString:string;

@@ -12,6 +12,11 @@
                         :fields='page.fields'>
                     </ejs-dropdownlist>
                 </div>
+                <div class="col-sm-2">
+                    <input type="file" id="fileImportExcelClient" ref="fileImportExcelClient" style="display: none"
+                                    accept=".xlsx, .xls, .csv"  @change="UploadFileExcel" />
+                    <button class="btn btn-sm btn-warning" @click="clickUploadFileExcel"><i class="fas fa-upload"></i> Import(.xls/.csv)</button>
+                </div>
             </div>
             <div class="row mt-2">
                 <template v-for="(item,index) in pageInputs" :key="index">
